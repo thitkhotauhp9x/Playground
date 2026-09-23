@@ -33,7 +33,7 @@
     "unrs-resolver@1.12.2": true
   },
   "lint-staged": {
-    "**/*.{js,json}": [
+    "**/*.{js,jsx,ts,tsx,json,css,scss}": [
       "prettier --write"
     ]
   }
