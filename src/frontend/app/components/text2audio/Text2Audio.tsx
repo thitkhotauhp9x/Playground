@@ -22,9 +22,6 @@ export function Text2Audio() {
     const text = formData.get("text");
     const lang = formData.get("lang");
 
-//     const response = await axios.post('/api/text2audio', payload, { responseType: 'blob' });
-// const url = URL.createObjectURL(response.data);
-
     try {
       const response = await axios.post(
         "http://localhost:8000/text2audio", {
