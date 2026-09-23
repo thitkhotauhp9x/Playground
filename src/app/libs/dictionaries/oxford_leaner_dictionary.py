@@ -13,7 +13,7 @@ def get_definition(word: str, timeout: int | None) -> Response:
 
 
 @dataclass(frozen=True)
-class OxfordLearnerDictionaries:
+class OxfordLearnerDictionary:
     word: str
     timeout: Optional[int] = None
 
@@ -23,16 +23,10 @@ class OxfordLearnerDictionaries:
         return BeautifulSoup(response.text, "html.parser")
 
     def phonetic_br(self):
-        container = self.soup.find("div", class_="top-container")
-        if container is None:
-            return None
-        phones_br = container.find("div", class_="phons_br")  # type: ignore
-        if phones_br is None:
-            return None
-        phon = phones_br.find("span", class_="phon")  # type: ignore
-        if phon is None:
-            return None
-        return phon.text  # type: ignore
+        results = self.soup.select("div.top-container div.phons_br span.phon")
+        if results:
+            return results[0].text
+        return None
 
     @property
     def main_column(self):

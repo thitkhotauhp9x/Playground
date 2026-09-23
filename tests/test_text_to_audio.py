@@ -1,11 +1,6 @@
 from pathlib import Path
 
-from gtts import gTTS
-
-
-def text_to_audio(text: str, lang: str, output_path: str) -> None:
-    tts_audio = gTTS(text=text, lang=lang, slow=False)
-    tts_audio.save(output_path)
+from tests.english.text_to_audio_converter import text_to_audio
 
 
 def test_text_to_audio() -> None:

@@ -1,15 +1,26 @@
-import { useState } from 'react';
-import {Burger, Button, Container, Dialog, Divider, Drawer, Group, ScrollArea, TextInput, Text} from '@mantine/core';
-import { useDisclosure } from '@mantine/hooks';
-import classes from './HeaderSimple.module.css';
-import {Login} from "@/app/components/login/Login";
-import {Text2Audio} from "@/app/components/text2audio/Text2Audio";
+import { useState } from "react";
+import {
+  Burger,
+  Button,
+  Container,
+  Dialog,
+  Divider,
+  Drawer,
+  Group,
+  ScrollArea,
+  TextInput,
+  Text,
+} from "@mantine/core";
+import { useDisclosure } from "@mantine/hooks";
+import classes from "./HeaderSimple.module.css";
+import { Login } from "@/app/components/login/Login";
+import { Text2Audio } from "@/app/components/text2audio/Text2Audio";
 
 const links = [
-  { link: '/about', label: 'Features' },
-  { link: '/pricing', label: 'Pricing' },
-  { link: '/text2audio', label: 'Text2Audio' },
-  { link: '/community', label: 'Community' },
+  { link: "/about", label: "Features" },
+  { link: "/pricing", label: "Pricing" },
+  // { link: "/text2audio", label: "Text2Audio" },
+  { link: "/community", label: "Community" },
 ];
 
 export function HeaderSimple() {
@@ -35,41 +46,41 @@ export function HeaderSimple() {
 
   return (
     <>
-    <header className={classes.header}>
-      <Container size="md" className={classes.inner}>
-        <Group gap={5} visibleFrom="xs">
-          {items}
-        </Group>
-        <Login></Login>
+      <header className={classes.header}>
+        <Container size="md" className={classes.inner}>
+          <Group gap={5} visibleFrom="xs">
+            {items}
+          </Group>
+          <Login></Login>
 
-        <Burger
+          <Burger
+            opened={opened}
+            onClick={toggle}
+            hiddenFrom="xs"
+            size="sm"
+            aria-label="Toggle navigation"
+          />
+        </Container>
+
+        <Drawer
           opened={opened}
-          onClick={toggle}
+          onClose={close}
+          size="100%"
+          padding="md"
+          title="Navigation"
           hiddenFrom="xs"
-          size="sm"
-          aria-label="Toggle navigation"
-        />
-      </Container>
-
-      <Drawer
-        opened={opened}
-        onClose={close}
-        size="100%"
-        padding="md"
-        title="Navigation"
-        hiddenFrom="xs"
-        zIndex={1000000}
-      >
-        <ScrollArea h="calc(100vh - 80px" mx="-md">
-          <Divider my="sm" />
-          {items}
-        </ScrollArea>
-      </Drawer>
-    </header>
+          zIndex={1000000}
+        >
+          <ScrollArea h="calc(100vh - 80px" mx="-md">
+            <Divider my="sm" />
+            {items}
+          </ScrollArea>
+        </Drawer>
+      </header>
       <Container>
         {}
         <Text2Audio></Text2Audio>
       </Container>
-      </>
+    </>
   );
 }

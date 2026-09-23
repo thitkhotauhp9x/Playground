@@ -1,75 +1,41 @@
-import functools
-from operator import methodcaller
-from pathlib import Path
-from typing import Self, Mapping, Callable
+from typing import Callable, Iterable
 
 from langchain_core.messages import HumanMessage, SystemMessage, AIMessage
 from langchain_core.output_parsers import StrOutputParser
 from langchain_openai import ChatOpenAI
 
-from playground.creators.dort import dort
-
-llm = ChatOpenAI(model="gpt-4o-mini") | StrOutputParser()
+from playground.utils.dort import dort
 
 
-def air():
-    def decorator(func):
-        @functools.wraps(func)
-        def wrapper(*args, **kwargs) -> str:
-            return llm.invoke([HumanMessage(content=func(*args, **kwargs))])
-
-        return wrapper
+chat_model = ChatOpenAI(model="gpt-4o-mini")
+llm = chat_model | StrOutputParser()
 
 
-    return decorator
-
-llm_invoke = dort(llm.invoke)
-human = dort(HumanMessage)
-system = dort(SystemMessage)
-ai = dort(AIMessage)
+def lst[**P, R](func: Callable[P, Iterable[R]]) -> Callable[P, list[R]]:
+    return dort(lambda x: list(x))(func)
 
 
-def run(content: str) -> str:
-    return llm.invoke([HumanMessage(content=content)])
+def llm_invoke[**P, R](func: Callable[P, R]) -> Callable[P, str]:
+    return dort(llm.invoke)(func)
 
 
-r = dort(run)
+def human(func: Callable[..., str]) -> Callable[..., HumanMessage]:
+    return dort(HumanMessage)(func)
 
 
-@r
-def say_hello():
-    return "Hello"
+def system(func: Callable[..., str]) -> Callable[..., SystemMessage]:
+    return dort(SystemMessage)(func)
 
 
-def main():
-    response = say_hello()
-    print(response)
-    response = run("Hello")
-    print(response)
+def ai(func: Callable[..., str]) -> Callable[..., AIMessage]:
+    return dort(AIMessage)(func)
 
 
-class Messages:
-    def __init__(self):
-        self._system: SystemMessage
-        self._queries: list[HumanMessage]
-
-    _LOADING_METHOD_MAP: Mapping[type, Callable[..., str]] = {
-        str: lambda content: content,
-        Path: methodcaller("read_text", encoding="utf-8"),
-    }
-
-    def set_system_message(self, content: str | Path) -> Self:
-        self._system = SystemMessage(self._LOADING_METHOD_MAP[type(content)](content))
-        return self
+@llm_invoke
+def ask(query: str) -> list[HumanMessage]:
+    return [HumanMessage(query)]
 
 
-def abc():
-    return [
-        SystemMessage(content="dfdf"),
-        HumanMessage(content="Hello"),
-        AIMessage(content="World"),
-    ]
-
-
-if __name__ == '__main__':
-    main()
+@llm_invoke
+def air(query: str) -> list[HumanMessage]:
+    return [HumanMessage(query)]

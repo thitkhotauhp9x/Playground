@@ -1,4 +1,3 @@
-# from hat.decorators.air import air
 from langchain_core.messages import HumanMessage, SystemMessage
 
 from playground.utils.dort import dort
@@ -22,5 +21,7 @@ thực hiện một nhiệm vụ cụ thể dựa trên ý tưởng gốc."""),
 
 
 create_instruction = dort(lambda query: InstructionCreator(query).create())
+
+
 human = dort(HumanMessage)
 system = dort(SystemMessage)

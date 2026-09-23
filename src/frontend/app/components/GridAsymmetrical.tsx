@@ -1,6 +1,6 @@
-import { Container, Grid, Skeleton } from '@mantine/core';
-import { Calendar } from '@mantine/dates';
-import {QA} from "@/app/components/questions/QA";
+import { Container, Grid, Skeleton } from "@mantine/core";
+import { Calendar } from "@mantine/dates";
+import { QA } from "@/app/components/questions/QA";
 
 const child = <Skeleton height={140} radius="md" animate={false} />;
 
@@ -9,7 +9,7 @@ export function GridAsymmetrical() {
     <Container my="md">
       <Grid>
         <Grid.Col span={{ base: 12, xs: 4 }}>
-          <Calendar/>
+          <Calendar />
           {child}
         </Grid.Col>
         <Grid.Col span={{ base: 12, xs: 8 }}>

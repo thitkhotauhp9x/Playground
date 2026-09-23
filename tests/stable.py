@@ -1,5 +1,6 @@
 import asyncio
 from typing import Iterable, Callable, Any, Annotated
+from warnings import deprecated
 
 from langchain_core.messages import BaseMessage, HumanMessage, AIMessage
 from langchain_core.output_parsers import StrOutputParser
@@ -8,8 +9,8 @@ from langchain_openai import ChatOpenAI
 from langchain_core.messages import SystemMessage
 from pydantic import BaseModel, Field
 
-from hat.decorators.config import CHAT_MODEL
-from hat.messages.message_flattening import flatten_messages
+from decorators.config import CHAT_MODEL
+from messages.message_flattening import flatten_messages
 
 
 async def make_stable_prompt(messages: list[BaseMessage]) -> None:
@@ -63,6 +64,7 @@ This is an output format
 """
 
 
+@deprecated
 class OutputFormat(BaseModel):
     identity: Annotated[str, Field(description="Who or what somebody/something is")]
     instructions: list[

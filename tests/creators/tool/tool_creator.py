@@ -6,7 +6,7 @@ from langchain_core.messages import SystemMessage, HumanMessage
 from langchain_core.output_parsers import StrOutputParser
 from langchain_openai import ChatOpenAI
 
-from playground.creators.tool.creator import describe_arguments
+from tests.creators.tool.creator import describe_arguments
 
 
 class Instructions:
@@ -43,7 +43,9 @@ class ToolCreator(ABC):
         self._max_retries = max_retries
         self._chain = ChatOpenAI(model="gpt-4o-mini") | StrOutputParser()
 
-    def convert_function_to_instructions[**P, R](self, func: Callable[P, R], *args: P.args, **kwargs: P.kwargs) -> str:
+    def convert_function_to_instructions[**P, R](
+        self, func: Callable[P, R], *args: P.args, **kwargs: P.kwargs
+    ) -> str:
         type_hints = get_type_hints(func)
         return_type = type_hints["return"]
         messages = [
@@ -59,13 +61,19 @@ class ToolCreator(ABC):
     def evaluate[R](self, func_result: R, openai_result: R) -> bool:
         pass
 
-    def correct_instructions(self, instructions: str, function_result, openai_result) -> str:
+    def correct_instructions(
+        self, instructions: str, function_result, openai_result
+    ) -> str:
         pass
 
-    def create[**P, R](self, func: Callable[P, R], *args: P.args, **kwargs: P.kwargs) -> str | None:
+    def create[**P, R](
+        self, func: Callable[P, R], *args: P.args, **kwargs: P.kwargs
+    ) -> str | None:
         func_result = func(*args, **kwargs)
 
-        openai_instructions = self.convert_function_to_instructions(func, *args, **kwargs)
+        openai_instructions = self.convert_function_to_instructions(
+            func, *args, **kwargs
+        )
         messages = [
             SystemMessage(openai_instructions),
             HumanMessage(content=describe_arguments(func, *args, **kwargs)),
@@ -76,7 +84,9 @@ class ToolCreator(ABC):
             if self.evaluate(func_result, openai_result):
                 return openai_instructions
             else:
-                openai_instructions = self.correct_instructions(openai_instructions, func_result, openai_result)
+                openai_instructions = self.correct_instructions(
+                    openai_instructions, func_result, openai_result
+                )
         return None
 
 
@@ -93,11 +103,12 @@ def main():
                     f"{index + 1}. `{item.name}`({item.annotation}): {item.description}\n"
                 )
     """
+
     def add(a: int, b: int) -> int:
         return a + b
 
     type_hints = get_type_hints(add, include_extras=True)
-    
+
     print(type_hints["return"])
     pass
 

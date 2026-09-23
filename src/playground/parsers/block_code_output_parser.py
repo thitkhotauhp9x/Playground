@@ -7,10 +7,10 @@ class BlockCodeOutputParser(BaseOutputParser):
         super().__init__()
         self._lang = lang
         self._index = index
+        self._md = MarkdownIt()
 
     def parse(self, text: str) -> str:
-        md = MarkdownIt()
-        tokens = md.parse(text)
+        tokens = self._md.parse(text)
 
         code_blocks = []
         for token in tokens:

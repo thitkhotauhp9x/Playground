@@ -1,6 +1,6 @@
 from langchain_core.messages import HumanMessage
 
-from playground.creators.tool.system_message.structured_system_message import (
+from tests.creators.tool.system_message.structured_system_message import (
     StructuredSystemMessage,
     SSM_OUTPUT_PARSER,
 )

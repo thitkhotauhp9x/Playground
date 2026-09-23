@@ -1,17 +1,17 @@
-import { Anchor, Container, Group } from '@mantine/core';
-import { MantineLogo } from '@mantinex/mantine-logo';
-import classes from './FooterSimple.module.css';
+import { Anchor, Container, Group } from "@mantine/core";
+import { MantineLogo } from "@mantinex/mantine-logo";
+import classes from "./FooterSimple.module.css";
 
 const links = [
-  { link: '#', label: 'Contact' },
-  { link: '#', label: 'Privacy' },
-  { link: '#', label: 'Blog' },
-  { link: '#', label: 'Careers' },
+  { link: "#", label: "Contact" },
+  { link: "#", label: "Privacy" },
+  { link: "#", label: "Blog" },
+  { link: "#", label: "Careers" },
 ];
 
 export function FooterSimple() {
   const items = links.map((link) => (
-    <Anchor<'a'>
+    <Anchor<"a">
       c="dimmed"
       key={link.label}
       href={link.link}

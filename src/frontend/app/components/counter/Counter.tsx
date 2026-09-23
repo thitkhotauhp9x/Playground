@@ -1,4 +1,4 @@
-import {useState} from "react";
+import { useState } from "react";
 
 export function Counter() {
   const [count, setCount] = useState(0);
@@ -7,9 +7,5 @@ export function Counter() {
     setCount(count + 1);
   }
 
-  return (
-    <button onClick={handleClick}>
-      You pressed me {count} times
-    </button>
-  );
+  return <button onClick={handleClick}>You pressed me {count} times</button>;
 }

@@ -8,8 +8,8 @@ from langchain_core.tools import BaseTool
 from langchain_openai import ChatOpenAI
 from pydantic import BaseModel, Field
 
-from hat.playground.models.messages.messages import Messages  # type: ignore
-from hat.playground.models.input_agent_model import InputAgentModel  # type: ignore
+from playground.models.messages.messages import Messages
+from playground.models.input_agent_model import InputAgentModel
 
 logger = logging.getLogger(__name__)
 

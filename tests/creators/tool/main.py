@@ -1,4 +1,4 @@
-from playground.creators.tool.creator import tool_creator
+from tests.creators.tool.creator import tool_creator
 
 
 @tool_creator

@@ -1,6 +1,6 @@
 import dspy
 
-dspy.configure(lm=dspy.LM('openai/gpt-4o-mini'))
+dspy.configure(lm=dspy.LM("openai/gpt-4o-mini"))
 dspy.configure_cache(enable_disk_cache=False, enable_memory_cache=False)
 
 
@@ -10,6 +10,7 @@ def test_assign_emtpy_string() -> None:
         result = an empty string
         result = var if var
         """
+
         var: str | None = dspy.InputField()
         result: str = dspy.OutputField()
 
@@ -24,12 +25,14 @@ def test_join_string() -> None:
         result = an empty string
         result = var-{var}-{var}-var if var
         """
+
         var: str | None = dspy.InputField()
         result: str = dspy.OutputField()
 
     model = dspy.ChainOfThought(Model)
     response = model(var="Jame")
-    assert response.result == 'var-Jame-Jame-var'
+    assert response.result == "var-Jame-Jame-var"
+
 
 def test_assign_string() -> None:
     class Model(dspy.Signature):
@@ -40,6 +43,7 @@ def test_assign_string() -> None:
         result = "{var}-var"
         result = "None"
         """
+
         var: str = dspy.InputField()
         result: str = dspy.OutputField(desc="The final value of `result`")
 
@@ -55,6 +59,7 @@ def test_condition() -> None:
         Execute the following instructions step-by-step. Do not skip any instructions.
         result = "xxx" if "{var}" == "" else "{var}"
         """
+
         var: str = dspy.InputField()
         result: str = dspy.OutputField(desc="The final value of `result`")
 
@@ -76,6 +81,7 @@ def test_question() -> None:
         Step 1: result = What is the capital of Vietnam?
         Step 2: result = "The capital of Vietnam is {result}"
         """
+
         var: str = dspy.InputField()
         result: str = dspy.OutputField(desc="The final value of `result`")
 

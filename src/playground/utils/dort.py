@@ -2,12 +2,12 @@ import functools
 from typing import Callable
 
 
-def dort[**P, R, R1](
-    fn: Callable[[R], R1],
-) -> Callable[[Callable[P, R]], Callable[P, R1]]:
-    def decorator(func: Callable[P, R]) -> Callable[P, R1]:
+def dort[R1, R2](
+    fn: Callable[[R1], R2],
+) -> Callable[[Callable[..., R1]], Callable[..., R2]]:
+    def decorator[**P](func: Callable[P, R1]) -> Callable[P, R2]:
         @functools.wraps(func)
-        def wrapper(*args: P.args, **kwargs: P.kwargs) -> R1:
+        def wrapper(*args: P.args, **kwargs: P.kwargs) -> R2:
             return fn(func(*args, **kwargs))
 
         return wrapper

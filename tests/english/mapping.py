@@ -1,5 +1,3 @@
-# fad /fæd/
-
 def phonetic_mapping():
     PHONETIC_MAPPING = {
         "a": [],

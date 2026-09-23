@@ -1,11 +1,10 @@
-import { useDisclosure } from '@mantine/hooks';
-import {Dialog, Group, Button, Text, Textarea} from '@mantine/core';
-import {InputWithButton} from "@/app/components/conversation/InputWithButton";
-import {useState} from "react";
-
+import { useDisclosure } from "@mantine/hooks";
+import { Dialog, Group, Button, Text, Textarea } from "@mantine/core";
+import { InputWithButton } from "@/app/components/conversation/InputWithButton";
+import { useState } from "react";
 
 export function ConversationDialog() {
-  const [messages, setMessages] = useState([])
+  const [messages, setMessages] = useState([]);
 
   const [opened, { toggle, close }] = useDisclosure(false);
 

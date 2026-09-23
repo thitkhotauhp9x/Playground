@@ -1,5 +1,10 @@
-import { IconArrowRight, IconSearch } from '@tabler/icons-react';
-import { ActionIcon, TextInput, TextInputProps, useMantineTheme } from '@mantine/core';
+import { IconArrowRight, IconSearch } from "@tabler/icons-react";
+import {
+  ActionIcon,
+  TextInput,
+  TextInputProps,
+  useMantineTheme,
+} from "@mantine/core";
 
 export function RegexSearch(props: TextInputProps) {
   const theme = useMantineTheme();
