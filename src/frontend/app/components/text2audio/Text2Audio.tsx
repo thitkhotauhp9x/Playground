@@ -14,10 +14,10 @@ export function Text2Audio() {
   const [opened, { open, close }] = useDisclosure(false);
   const [audioUrl, setAudioUrl] = useState("");
 
-  async function handleOnSubmitForm(event) {
+  async function handleOnSubmitForm(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    const form = event.target;
+    const form = event.currentTarget;
     const formData = new FormData(form);
     const text = formData.get("text");
     const lang = formData.get("lang");
@@ -28,7 +28,6 @@ export function Text2Audio() {
         text: text,
         lang: lang,
       }, { responseType: 'blob' });
-      // const blob = response.data;
 
       const url = URL.createObjectURL(response.data);
       setAudioUrl(url);

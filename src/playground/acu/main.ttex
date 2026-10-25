@@ -1,0 +1,41 @@
+\documentclass{article}
+
+% Language setting
+% Replace `english' with e.g. `spanish' to change the document language
+\usepackage[utf8]{inputenc}
+% \usepackage[vietnamese]{babel}
+\usepackage[main=vietnamese, english, chinese-hans]{babel}
+\usepackage{etoolbox}
+% Set page size and margins
+% Replace `letterpaper' with `a4paper' for UK/EU standard size
+\usepackage[a4paper,top=2cm,bottom=2cm,left=3cm,right=3cm,marginparwidth=1.75cm]{geometry}
+
+% Useful packages
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage[colorlinks=true, allcolors=blue]{hyperref}
+\usepackage{tikz}
+\usepackage{scalerel}
+\usepackage{float}
+\usepackage{subcaption}
+\usepackage{longtable}
+\usepackage{letltxmacro}
+\usepackage{pdfpages}
+
+\usepackage{ragged2e}  % Cung cấp lệnh \RaggedRight
+\usepackage{graphbox}
+\usepackage{eso-pic} % Gói lệnh dùng để chèn ảnh nền toàn trang
+\usepackage{color} % Dùng nếu bạn muốn đổi màu chữ nổi bật trên nền ảnh
+\usepackage{array}     % Bắt buộc phải có để dùng ký tự >{}
+\usepackage{tabularx}
+\usepackage{ltablex}
+\usepackage{tabularray}
+\usepackage{booktabs}
+
+\title{Xoa bóp bấm huyệt}
+
+\begin{document}
+\keepXColumns
+
+\include{<< tex_file >>}
+\end{document}

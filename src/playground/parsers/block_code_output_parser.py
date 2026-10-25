@@ -11,7 +11,6 @@ class BlockCodeOutputParser(BaseOutputParser):
 
     def parse(self, text: str) -> str:
         tokens = self._md.parse(text)
-
         code_blocks = []
         for token in tokens:
             if token.type == "fence":
@@ -20,7 +19,4 @@ class BlockCodeOutputParser(BaseOutputParser):
                 if lang == self._lang:
                     if token.content:
                         code_blocks.append(token.content.strip())
-
-        if 0 <= self._index < len(code_blocks):
-            return code_blocks[self._index]
-        return text
+        return code_blocks[self._index]

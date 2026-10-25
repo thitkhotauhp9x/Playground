@@ -7,6 +7,7 @@ from typing_extensions import deprecated
 class SystemTemplate(BaseModel):
     identity: str
     instructions: list[str]
+    examples: list[str]
 
     def __str__(self) -> str:
         instructions = "\n".join(self.instructions)
@@ -22,4 +23,6 @@ SYSTEM_TEMPLATE = """# Identity
 
 # Instructions
 {instructions}
+# Examples
+<assistance_input>
 """

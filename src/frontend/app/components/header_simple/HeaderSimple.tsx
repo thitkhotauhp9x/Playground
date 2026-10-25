@@ -15,6 +15,8 @@ import { useDisclosure } from "@mantine/hooks";
 import classes from "./HeaderSimple.module.css";
 import { Login } from "@/app/components/login/Login";
 import { Text2Audio } from "@/app/components/text2audio/Text2Audio";
+import {Conversation} from "@/app/components/conversation/Conversation";
+import {ActionsGrid} from "@/app/components/ActionsGrid";
 
 const links = [
   { link: "/about", label: "Features" },
@@ -78,8 +80,9 @@ export function HeaderSimple() {
         </Drawer>
       </header>
       <Container>
-        {}
         <Text2Audio></Text2Audio>
+        <Conversation></Conversation>
+        <ActionsGrid></ActionsGrid>
       </Container>
     </>
   );
