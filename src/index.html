@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trình chỉnh sửa Tư thế & Cơ bắp (Pose & Muscle Editor)</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #121212;
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        header {
+            background-color: #1e1e1e;
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #333;
+            z-index: 10;
+        }
+
+        h1 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #00e5ff;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .toggle-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #2a2a2a;
+            padding: 6px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            user-select: none;
+            font-size: 0.85rem;
+        }
+
+        .toggle-group input[type="checkbox"] {
+            accent-color: #00e5ff;
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
+
+        .btn {
+            background-color: #00e5ff;
+            color: #000;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.85rem;
+        }
+
+        .btn:hover {
+            background-color: #80d8ff;
+            transform: translateY(-1px);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            color: #00e5ff;
+            border: 1px solid #00e5ff;
+        }
+
+        .btn-outline:hover {
+            background-color: rgba(0, 229, 255, 0.1);
+        }
+
+        #main-container {
+            flex: 1;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #0a0a0a;
+            overflow: auto;
+        }
+
+        #canvas-wrapper {
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        svg {
+            display: block;
+            touch-action: none;
+        }
+
+        .keypoint {
+            cursor: move;
+            transition: r 0.15s ease, fill 0.15s ease;
+        }
+
+        .keypoint:hover {
+            r: 8;
+            stroke: #ffffff;
+            stroke-width: 2px;
+        }
+
+        .instructions {
+            position: absolute;
+            bottom: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.75);
+            padding: 8px 18px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            color: #ccc;
+            pointer-events: none;
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Pose & Muscle Overlay Editor</h1>
+        <div class="controls">
+            <label class="toggle-group">
+                <input type="checkbox" id="toggle-image" checked>
+                <span>Ảnh nền</span>
+            </label>
+            <label class="toggle-group">
+                <input type="checkbox" id="toggle-skeleton" checked>
+                <span>Khung người que</span>
+            </label>
+            <label class="toggle-group">
+                <input type="checkbox" id="toggle-muscles" checked>
+                <span style="color: #ff5252; font-weight: bold;">Hiện cơ bắp (Muscle Mesh)</span>
+            </label>
+            <button class="btn btn-outline" id="btn-reset">Đặt lại vị trí</button>
+            <button class="btn" id="btn-export">Xuất SVG</button>
+        </div>
+    </header>
+
+    <div id="main-container">
+        <div id="canvas-wrapper">
+            <svg id="svg-canvas" width="1024" height="576" viewBox="0 0 1024 576">
+                <defs>
+                    <linearGradient id="muscleGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#ff5252" stop-opacity="0.55" />
+                        <stop offset="100%" stop-color="#ff1744" stop-opacity="0.35" />
+                    </linearGradient>
+                </defs>
+
+                <!-- Layer 1: Image -->
+                <image id="bg-image" href="https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=1024&q=80" width="1024" height="576" preserveAspectRatio="xMidYMid slice"/>
+
+                <!-- Layer 2: Muscle Mesh Group -->
+                <g id="muscle-layer"></g>
+
+                <!-- Layer 3: Skeleton Lines Group -->
+                <g id="skeleton-layer"></g>
+
+                <!-- Layer 4: Keypoints Group -->
+                <g id="keypoint-layer"></g>
+            </svg>
+        </div>
+        <div class="instructions">Dùng chuột kéo thả các điểm tròn để điều chỉnh khớp xương & khối cơ bắp tương ứng</div>
+    </div>
+
+    <script>
+        // Tọa độ khớp ban đầu chuẩn xác theo bức ảnh
+        const initialPersons = [
+            {
+                id: 'person1',
+                name: 'Kỹ thuật viên (Đứng)',
+                color: '#ff4081',
+                joints: {
+                    head: { x: 650, y: 30 },
+                    neck: { x: 700, y: 80 },
+                    r_shoulder: { x: 710, y: 90 },
+                    r_elbow: { x: 780, y: 220 },
+                    r_wrist: { x: 720, y: 350 },
+                    l_shoulder: { x: 690, y: 85 },
+                    l_elbow: { x: 730, y: 280 },
+                    l_wrist: { x: 700, y: 380 },
+                    r_hip: { x: 880, y: 280 },
+                    r_knee: { x: 860, y: 440 },
+                    r_ankle: { x: 880, y: 550 },
+                    l_hip: { x: 860, y: 290 },
+                    l_knee: { x: 840, y: 450 },
+                    l_ankle: { x: 860, y: 550 }
+                }
+            },
+            {
+                id: 'person2',
+                name: 'Khách hàng (Nằm)',
+                color: '#00e5ff',
+                joints: {
+                    head: { x: 90, y: 440 },
+                    neck: { x: 180, y: 410 },
+                    r_shoulder: { x: 190, y: 400 },
+                    r_elbow: { x: 410, y: 400 },
+                    r_wrist: { x: 610, y: 390 },
+                    l_shoulder: { x: 170, y: 470 },
+                    l_elbow: { x: 380, y: 480 },
+                    l_wrist: { x: 590, y: 480 },
+                    r_hip: { x: 610, y: 430 },
+                    r_knee: { x: 760, y: 480 },
+                    r_ankle: { x: 920, y: 500 },
+                    l_hip: { x: 600, y: 470 },
+                    l_knee: { x: 750, y: 500 },
+                    l_ankle: { x: 910, y: 520 }
+                }
+            }
+        ];
+
+        let persons = JSON.parse(JSON.stringify(initialPersons));
+        let activeKeypoint = null;
+
+        const svgCanvas = document.getElementById('svg-canvas');
+        const skeletonLayer = document.getElementById('skeleton-layer');
+        const muscleLayer = document.getElementById('muscle-layer');
+        const keypointLayer = document.getElementById('keypoint-layer');
+
+        const toggleImage = document.getElementById('toggle-image');
+        const toggleSkeleton = document.getElementById('toggle-skeleton');
+        const toggleMuscles = document.getElementById('toggle-muscles');
+        const bgImage = document.getElementById('bg-image');
+        const btnReset = document.getElementById('btn-reset');
+        const btnExport = document.getElementById('btn-export');
+
+        // Khung xương liên kết các khớp
+        const connections = [
+            ['head', 'neck'],
+            ['neck', 'r_shoulder'], ['r_shoulder', 'r_elbow'], ['r_elbow', 'r_wrist'],
+            ['neck', 'l_shoulder'], ['l_shoulder', 'l_elbow'], ['l_elbow', 'l_wrist'],
+            ['neck', 'r_hip'], ['r_hip', 'r_knee'], ['r_knee', 'r_ankle'],
+            ['neck', 'l_hip'], ['l_hip', 'l_knee'], ['l_knee', 'l_ankle'],
+            ['r_shoulder', 'l_shoulder'], ['r_hip', 'l_hip']
+        ];
+
+        // Hàm tính toán vẽ ellipse cơ bắp bọc qua 2 khớp
+        function drawMuscleLimb(p1, p2, width, color = "url(#muscleGrad)") {
+            if (!p1 || !p2) return '';
+            const dx = p2.x - p1.x;
+            const dy = p2.y - p1.y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            if (dist === 0) return '';
+
+            const angle = Math.atan2(dy, dx) * (180 / Math.PI);
+            const cx = (p1.x + p2.x) / 2;
+            const cy = (p1.y + p2.y) / 2;
+            const rx = dist / 2;
+            const ry = width;
+
+            return `<ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}"
+                     transform="rotate(${angle} ${cx} ${cy})"
+                     fill="${color}" stroke="#ff5252" stroke-width="1.5" stroke-dasharray="3,2" />`;
+        }
+
+        // Vẽ các khối cơ bắp thân người (Ngực, Bụng, Lưng)
+        function drawTorsoMuscles(joints) {
+            const neck = joints.neck;
+            const rS = joints.r_shoulder;
+            const lS = joints.l_shoulder;
+            const rH = joints.r_hip;
+            const lH = joints.l_hip;
+
+            // Pectoralis / Chest
+            const chestPath = `M ${rS.x} ${rS.y} Q ${neck.x} ${neck.y + 15} ${lS.x} ${lS.y}
+                               L ${(lS.x + lH.x)/2} ${(lS.y + lH.y)/2}
+                               Q ${neck.x} ${neck.y + 35} ${(rS.x + rH.x)/2} ${(rS.y + rH.y)/2} Z`;
+
+            // Abs / Core
+            const absPath = `M ${(rS.x + rH.x)/2} ${(rS.y + rH.y)/2}
+                             L ${(lS.x + lH.x)/2} ${(lS.y + lH.y)/2}
+                             L ${lH.x} ${lH.y} L ${rH.x} ${rH.y} Z`;
+
+            return `<path d="${chestPath}" fill="url(#muscleGrad)" stroke="#ff1744" stroke-width="1.5" />
+                    <path d="${absPath}" fill="url(#muscleGrad)" stroke="#ff1744" stroke-width="1.5" />`;
+        }
+
+        function render() {
+            // Reset layers
+            skeletonLayer.innerHTML = '';
+            muscleLayer.innerHTML = '';
+            keypointLayer.innerHTML = '';
+
+            // Toggle visibility
+            bgImage.style.display = toggleImage.checked ? 'block' : 'none';
+            skeletonLayer.style.display = toggleSkeleton.checked ? 'block' : 'none';
+            muscleLayer.style.display = toggleMuscles.checked ? 'block' : 'none';
+
+            persons.forEach(person => {
+                const j = person.joints;
+
+                // 1. Render Muscle Overlay
+                if (toggleMuscles.checked) {
+                    let musclesHTML = '';
+                    // Thân (Cơ ngực & cơ bụng)
+                    musclesHTML += drawTorsoMuscles(j);
+
+                    // Cơ vai (Deltoids)
+                    musclesHTML += `<circle cx="${j.r_shoulder.x}" cy="${j.r_shoulder.y}" r="18" fill="url(#muscleGrad)" stroke="#ff1744" />`;
+                    musclesHTML += `<circle cx="${j.l_shoulder.x}" cy="${j.l_shoulder.y}" r="18" fill="url(#muscleGrad)" stroke="#ff1744" />`;
+
+                    // Bắp tay (Biceps/Triceps)
+                    musclesHTML += drawMuscleLimb(j.r_shoulder, j.r_elbow, 14);
+                    musclesHTML += drawMuscleLimb(j.l_shoulder, j.l_elbow, 14);
+
+                    // Cẳng tay (Forearms)
+                    musclesHTML += drawMuscleLimb(j.r_elbow, j.r_wrist, 11);
+                    musclesHTML += drawMuscleLimb(j.l_elbow, j.l_wrist, 11);
+
+                    // Cơ đùi (Quadriceps)
+                    musclesHTML += drawMuscleLimb(j.r_hip, j.r_knee, 22);
+                    musclesHTML += drawMuscleLimb(j.l_hip, j.l_knee, 22);
+
+                    // Bắp chân (Calves)
+                    musclesHTML += drawMuscleLimb(j.r_knee, j.r_ankle, 15);
+                    musclesHTML += drawMuscleLimb(j.l_knee, j.l_ankle, 15);
+
+                    muscleLayer.innerHTML += musclesHTML;
+                }
+
+                // 2. Render Skeleton Lines
+                if (toggleSkeleton.checked) {
+                    connections.forEach(([p1Key, p2Key]) => {
+                        const p1 = j[p1Key];
+                        const p2 = j[p2Key];
+                        if (p1 && p2) {
+                            const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                            line.setAttribute('x1', p1.x);
+                            line.setAttribute('y1', p1.y);
+                            line.setAttribute('x2', p2.x);
+                            line.setAttribute('y2', p2.y);
+                            line.setAttribute('stroke', person.color);
+                            line.setAttribute('stroke-width', '3.5');
+                            line.setAttribute('stroke-linecap', 'round');
+                            skeletonLayer.appendChild(line);
+                        }
+                    });
+                }
+
+                // 3. Render Keypoints (Interactive)
+                Object.keys(j).forEach(jointKey => {
+                    const point = j[jointKey];
+                    const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                    circle.setAttribute('cx', point.x);
+                    circle.setAttribute('cy', point.y);
+                    circle.setAttribute('r', '6');
+                    circle.setAttribute('fill', person.color);
+                    circle.setAttribute('stroke', '#ffffff');
+                    circle.setAttribute('stroke-width', '1.5');
+                    circle.setAttribute('class', 'keypoint');
+                    circle.dataset.personId = person.id;
+                    circle.dataset.jointKey = jointKey;
+
+                    keypointLayer.appendChild(circle);
+                });
+            });
+        }
+
+        // Tương tác Kéo thả (Drag & Drop)
+        function getSVGCoordinates(e) {
+            const rect = svgCanvas.getBoundingClientRect();
+            const scaleX = 1024 / rect.width;
+            const scaleY = 576 / rect.height;
+            return {
+                x: (e.clientX - rect.left) * scaleX,
+                y: (e.clientY - rect.top) * scaleY
+            };
+        }
+
+        keypointLayer.addEventListener('pointerdown', (e) => {
+            if (e.target.classList.contains('keypoint')) {
+                activeKeypoint = {
+                    personId: e.target.dataset.personId,
+                    jointKey: e.target.dataset.jointKey
+                };
+                e.target.setPointerCapture(e.pointerId);
+            }
+        });
+
+        svgCanvas.addEventListener('pointermove', (e) => {
+            if (activeKeypoint) {
+                const coords = getSVGCoordinates(e);
+                const person = persons.find(p => p.id === activeKeypoint.personId);
+                if (person) {
+                    person.joints[activeKeypoint.jointKey].x = Math.max(0, Math.min(1024, coords.x));
+                    person.joints[activeKeypoint.jointKey].y = Math.max(0, Math.min(576, coords.y));
+                    render();
+                }
+            }
+        });
+
+        svgCanvas.addEventListener('pointerup', (e) => {
+            if (activeKeypoint) {
+                activeKeypoint = null;
+            }
+        });
+
+        // Event Listeners
+        toggleImage.addEventListener('change', render);
+        toggleSkeleton.addEventListener('change', render);
+        toggleMuscles.addEventListener('change', render);
+
+        btnReset.addEventListener('click', () => {
+            persons = JSON.parse(JSON.stringify(initialPersons));
+            render();
+        });
+
+        btnExport.addEventListener('click', () => {
+            const serializer = new XMLSerializer();
+            const svgString = serializer.serializeToString(svgCanvas);
+            const blob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'pose-muscle-model.svg';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        });
+
+        // Khởi chạy render ban đầu
+        render();
+    </script>
+</body>
+</html>

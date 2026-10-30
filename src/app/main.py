@@ -3,6 +3,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.routes.text2audio import text_2_audio_router
 from app.routes.image_generation import image_generation_router
+from app.routes.svg_drawer import svg_drawer
 
 
 app = FastAPI()
@@ -23,3 +24,4 @@ app.add_middleware(
 
 app.include_router(text_2_audio_router)
 app.include_router(image_generation_router)
+app.include_router(svg_drawer)

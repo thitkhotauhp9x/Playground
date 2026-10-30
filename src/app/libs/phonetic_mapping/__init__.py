@@ -3,9 +3,8 @@ import sys
 import itertools
 from typing import Any
 import regex as re
-from pip._internal.resolution.resolvelib import candidates
-
-from app.libs.dictionaries.longman_dictionary import LongManWord
+from sympy import And, Not, Or, Symbol, satisfiable
+from app.libs.minisat import select
 from app.libs.dictionaries.oxford_leaner_dictionary import OxfordLearnerDictionary
 from app.libs.dictionaries.regex_dict import RegexDict
 
@@ -133,7 +132,7 @@ PHONEME_MAPPING: dict[str, list[Any]] = {
     "e": ["iː", "e", "ɪ", "ə", "ɜː", ""],
     "i": ["aɪ", "iː", "ɪ", "ə", "i", ""],
     "o": ["əʊ", "ʌ", "ɒ", "ɑː", "ɔː", "uː", "ʊ", "ɪ", "ə", ""],
-    "u": ["uː", ["j", "uː"], "ʌ", "ʊ", "ɪ", "ə", ""],
+    "u": ["uː", "juː", "ʌ", "ʊ", "ɪ", "ə", ""],
     "b": ["b", ""],
     "c": ["s", "k", "ʃ", "tʃ", ""],
     "d": ["d", "dʒ", "t", ""],
@@ -149,13 +148,85 @@ PHONEME_MAPPING: dict[str, list[Any]] = {
     "qu": ["kw"],
     "r": ["r", ""],
     "s": ["s", "z", "ʒ", "ʃ", ""],
-    "t": ["t", "ʃ", "tʃ", "θ", "ð", ""],
+    "t": ["t", "ʃ", "tʃ", ""],
     "v": ["v"],
+    "th": ["θ", "ð"],
     "w": ["w", ""],
     "x": ["ks", "gz", "kʃ"],
-    "y": ["ɪ", "ə"],
+    "y": ["ɪ", "ə", "j"],
     "z": ["z", "ʒ", ""],
+    "-": [""],
 }
+
+
+def tokenize_spelling(spelling: str) -> list[str]:
+    """Split a spelling into the longest available mapping keys.
+
+    Mapping keys are sorted longest-first and combined into a regex alternation,
+    so a multi-letter key such as ``qu`` is matched before ``q`` or ``u``.
+    The final ``.`` is a fallback that preserves any character absent from the
+    mapping table, allowing the caller to report it as an unmapped character.
+
+    Example: if the keys include ``qu``, ``q``, and ``u``, then
+    ``tokenize_spelling("queen")`` returns ``["qu", "e", "e", "n"]``.
+    """
+    mapping_keys = sorted(PHONEME_MAPPING, key=len, reverse=True)
+    key_pattern = "(?:" + "|".join(re.escape(key) for key in mapping_keys) + ")|."
+    return re.findall(key_pattern, spelling.lower())
+
+
+def map_phonetic(word: str, phonetic: str) -> list[tuple[str, str]] | None:
+    """Align letters with phoneme chunks using SymPy's SAT solver.
+
+    The mapping consumes the pronunciation from left to right. Stress marks and
+    IPA delimiters are ignored; ``None`` means no valid alignment was found.
+    """
+    letters = tokenize_spelling(word)
+    target = "".join(get_phonemes(phonetic.lower()))
+    if not letters:
+        return [] if not target else None
+    # An edge is a candidate mapping plus the contiguous span it consumes.
+    edges: list[list[tuple[Symbol, str, int, int]]] = []
+    for i, letter in enumerate(letters):
+        choices = PHONEME_MAPPING.get(letter)
+        if choices is None:
+            raise ValueError(f"No phoneme candidates configured for letter {letter!r}")
+        letter_edges = []
+        for choice_index, choice in enumerate(choices):
+            for start in range(len(target) + 1):
+                end = start + len(choice)
+                if end <= len(target) and target[start:end] == choice:
+                    var = Symbol(f"map_{i}_{choice_index}_{start}")
+                    letter_edges.append((var, choice, start, end))
+        edges.append(letter_edges)
+
+    if any(not choices for choices in edges):
+        return None
+
+    constraints = []
+    for choices in edges:
+        variables = [edge[0] for edge in choices]
+        constraints.append(select(variables, 1))
+    for i, choices in enumerate(edges):
+        for variable, _, start, end in choices:
+            if (i == 0 and start != 0) or (i == len(edges) - 1 and end != len(target)):
+                constraints.append(Not(variable))
+        if i:
+            for previous, _, _, previous_end in edges[i - 1]:
+                for current, _, current_start, _ in choices:
+                    if previous_end != current_start:
+                        constraints.append(Or(Not(previous), Not(current)))
+
+    solution = satisfiable(And(*constraints), algorithm="dpll2")
+    if solution is False:
+        return None
+    result = []
+    for letter, choices in zip(letters, edges, strict=True):
+        selected = next((edge for edge in choices if solution.get(edge[0], False)), None)
+        if selected is None:
+            return None
+        result.append((letter, selected[1]))
+    return result
 
 
 def map_slow(word: str, phonetic: str):
@@ -241,7 +312,7 @@ def map_phonetic_2(word: str, phonetic: str) -> list[tuple[str, str]]:
     return map_result
 
 
-def map_phonetic(word: str, phonetic: str) -> Any:
+def map_phonetic_legacy(word: str, phonetic: str) -> Any:
     mapped_consonants: list[tuple[str, str]] = map_consonants(word, phonetic)[0]
     mapped_vowels = map_vowels(word, phonetic)[0]
 
@@ -266,6 +337,10 @@ def map_phonetic(word: str, phonetic: str) -> Any:
     return map_result
 
 
+# Backward-compatible name retained for callers from the earlier MiniSat version.
+map_with_minisat = map_phonetic
+
+
 def render_mapping_result(mapping_result: list[tuple[str, str]]) -> str:
     content = ""
     for letter, phoneme in mapping_result:
@@ -288,31 +363,17 @@ def render_mapping_result(mapping_result: list[tuple[str, str]]) -> str:
 
 
 def main() -> None:
-    item = "cal"
-    for word in RegexDict(regex="cal$").find():
-        # word = "ducal"
+    for word in RegexDict(regex="al$").find():
         try:
-            ld_dictionary = LongManWord(word)
-            hyphenation = ld_dictionary.hyphenation()
             dictionary = OxfordLearnerDictionary(word)
             phonetic = dictionary.phonetic_br()
-            if hyphenation and phonetic:
-                parts = hyphenation.split("‧")
-                if item in parts:
-                    mapping_result = map_phonetic_2(
-                        hyphenation.lower(), phonetic.lower()
-                    )
-                    # mapping_result & hyphenation
-                    fid = hyphenation.find(item)
-                    if fid:
-                        cut_result = mapping_result[fid : fid + len(item)]
-                        print(hyphenation, "".join([v for i, v in cut_result]))
-                    else:
-                        print(hyphenation, None)
-                else:
-                    print(hyphenation, None)
+            if word and phonetic:
+                mapping_result = map_with_minisat(
+                    word.lower(), phonetic.lower()
+                )
+                print(mapping_result)
             else:
-                print(word, None)
+                print(word, phonetic, file=sys.stderr)
         except Exception as e:
             print(word, e, file=sys.stderr)
             raise e
