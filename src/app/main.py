@@ -1,10 +1,8 @@
 from fastapi import FastAPI
-# from starlette.middleware.cors import CORSMiddleware
 from fastapi.middleware.cors import CORSMiddleware
-from app.routes.text2audio import text_2_audio_router
-from app.routes.image_generation import image_generation_router
-from app.routes.svg_drawer import svg_drawer
 
+from app.routes.svg_drawer import svg_drawer
+from app.routes.text2audio import text_2_audio_router
 
 app = FastAPI()
 
@@ -15,13 +13,12 @@ origins = [
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,             # Cho phép các origin trong danh sách
+    allow_origins=origins,
     allow_credentials=True,
-    allow_methods=["*"],                # Cho phép tất cả các phương thức (GET, POST, PUT, DELETE...)
-    allow_headers=["*"],                # Cho phép tất cả các headers
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 
 app.include_router(text_2_audio_router)
-app.include_router(image_generation_router)
 app.include_router(svg_drawer)

@@ -52,8 +52,10 @@ def test_draw_a_ellipse():
 
 
 def test_draw_a_line():
-    prompt = ("Please draw a line starting from coordinates x=0, y=0 to x=300, y=0,"
-              " and assign it the ID 'line1'.")
+    prompt = (
+        "Please draw a line starting from coordinates x=0, y=0 to x=300, y=0,"
+        " and assign it the ID 'line1'."
+    )
     state = GraphState(prompt=prompt, design=[prompt], chat_model=CHAT_MODEL)
 
     state = draw_svg(state)
