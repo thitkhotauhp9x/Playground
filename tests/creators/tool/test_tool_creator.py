@@ -1,10 +1,11 @@
 import inspect
 from functools import partial
-from typing import Callable, get_type_hints
+from typing import get_type_hints
+from collections.abc import Callable
 
 from langchain_core.messages import SystemMessage
 
-from playground.utils.dort import dort
+from app.libs.playground.utils.dort import dort
 
 
 def test_describe_arguments() -> None:

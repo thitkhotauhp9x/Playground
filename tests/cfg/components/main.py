@@ -1,10 +1,11 @@
 import inspect
-from typing import List, Optional, Callable
+from typing import List, Optional
+from collections.abc import Callable
 
 from langchain_core.messages import HumanMessage
 from pydantic import BaseModel, Field
 
-from playground.utils.openai_runner import llm_invoke
+from app.libs.playground.utils.openai_runner import llm_invoke
 
 
 class CFGNode(BaseModel):
@@ -12,7 +13,7 @@ class CFGNode(BaseModel):
 
     node_id: str = Field(..., description="Mã định danh của nút")
     description: str = Field(default="", description="Mô tả nút")
-    next_node_ids: List[str] = Field(
+    next_node_ids: list[str] = Field(
         default_factory=list, description="Danh sách ID các nút tiếp theo"
     )
 
@@ -34,7 +35,7 @@ class ProcessingBlock(CFGNode):
     description: str = Field(
         default="Khối xử lý chứa các câu lệnh khai báo hoặc tính toán"
     )
-    statements: List[str] = Field(
+    statements: list[str] = Field(
         default_factory=list, description="Các câu lệnh khai báo hoặc tính toán"
     )
 
@@ -47,10 +48,10 @@ class DecisionNode(CFGNode):
 
     description: str = Field(default="Điểm quyết định (điều kiện rẽ nhánh/lặp)")
     condition: str = Field(..., description="Biểu thức điều kiện")
-    true_node_id: Optional[str] = Field(
+    true_node_id: str | None = Field(
         default=None, description="ID nút khi điều kiện Đúng"
     )
-    false_node_id: Optional[str] = Field(
+    false_node_id: str | None = Field(
         default=None, description="ID nút khi điều kiện Sai"
     )
 

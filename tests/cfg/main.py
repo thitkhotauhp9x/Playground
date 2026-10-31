@@ -2,7 +2,7 @@ import inspect
 
 from langchain_core.messages import SystemMessage, HumanMessage
 
-from playground.utils.openai_runner import llm_invoke
+from app.libs.playground.utils.openai_runner import llm_invoke
 
 
 def foo(a: int, b: int, c: int, d: int):

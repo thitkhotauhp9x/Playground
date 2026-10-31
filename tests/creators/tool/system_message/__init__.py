@@ -5,8 +5,8 @@ from tests.creators.tool.system_message.structured_system_message import (
     SSM_OUTPUT_PARSER,
 )
 
-from playground.utils.dort import dort
-from playground.utils.openai_runner import llm_invoke, lst
+from app.libs.playground.utils.dort import dort
+from app.libs.playground.utils.openai_runner import llm_invoke, lst
 
 
 @dort(SSM_OUTPUT_PARSER.invoke)

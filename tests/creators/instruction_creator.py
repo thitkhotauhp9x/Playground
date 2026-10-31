@@ -1,7 +1,7 @@
 from langchain_core.messages import HumanMessage, SystemMessage
 
-from playground.utils.dort import dort
-from playground.utils.openai_runner import llm_invoke
+from app.libs.playground.utils.dort import dort
+from app.libs.playground.utils.openai_runner import llm_invoke
 
 
 class InstructionCreator:

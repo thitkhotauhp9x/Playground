@@ -1,6 +1,6 @@
-from playground.models.order_list.base_item import BaseItem
-from playground.models.order_list.markdown_order_list import MarkdownOrderList
-from playground.models.order_list.order_list import OrderList
+from app.libs.playground.models import BaseItem
+from app.libs.playground.models import MarkdownOrderList
+from app.libs.playground.models import OrderList
 
 
 def main():

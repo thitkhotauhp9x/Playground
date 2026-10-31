@@ -1,10 +1,10 @@
 from functools import wraps
 import inspect
-from typing import Callable, Iterable
+from collections.abc import Callable, Iterable
 
 from langchain_core.messages import HumanMessage, SystemMessage
-from playground.utils.dort import dort
-from playground.utils.openai_runner import lst, llm_invoke
+from app.libs.playground.utils.dort import dort
+from app.libs.playground.utils.openai_runner import lst, llm_invoke
 
 
 @llm_invoke
