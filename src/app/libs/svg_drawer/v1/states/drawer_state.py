@@ -4,8 +4,11 @@ from langchain.agents import create_agent
 from langchain_core.messages import HumanMessage, SystemMessage
 from langchain_core.tools import StructuredTool
 
+from app.libs.loggers import get_logger
 from app.libs.svg_drawer.v1.models.graph_state import GraphState
 from app.libs.svg_drawer.v1.svg_drawer import SvgDrawer
+
+logger = get_logger(__name__)
 
 
 def draw_svg(state: GraphState) -> GraphState:
@@ -36,5 +39,6 @@ Nếu shape đã có trong ảnh svg rồi thì đừng vẽ lại nữa.
 
     response = agent_executor.invoke({"messages": state.history})
     state.history += response["messages"]
+    logger.debug(state.model_dump_json(indent=2))
     state.svg.display()
     return state

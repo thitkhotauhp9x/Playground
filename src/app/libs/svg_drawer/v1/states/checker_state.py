@@ -5,7 +5,10 @@ from langchain_core.messages import HumanMessage
 from langchain_core.output_parsers import PydanticOutputParser
 from pydantic import BaseModel, Field
 
+from app.libs.loggers import get_logger
 from app.libs.svg_drawer.v1.models.graph_state import GraphState
+
+logger = get_logger(__name__)
 
 
 class ImproveResponse(BaseModel):
@@ -58,4 +61,5 @@ có thể vẽ như gì bạn muốn. {output_parser.get_format_instructions()}
     pydantic_obj = output_parser.invoke(response)
     state.isDone = pydantic_obj.isOk
     state.design.append(pydantic_obj.updatedPrompt)
+    logger.debug(state.model_dump_json(indent=2))
     return state
