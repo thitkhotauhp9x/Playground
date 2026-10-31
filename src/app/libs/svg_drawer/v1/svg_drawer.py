@@ -1,21 +1,22 @@
 from dataclasses import dataclass
 from typing import Annotated
 from xml.etree import ElementTree
+
+from langchain.agents import create_agent
+from langchain.messages import SystemMessage
 from langchain.tools import tool
 from langchain_core.messages import HumanMessage
 from langchain_core.output_parsers import PydanticOutputParser
 from langchain_openai import ChatOpenAI
 from langgraph.constants import END
 from langgraph.graph import StateGraph
-from langchain.agents import create_agent
-from langchain.messages import SystemMessage
 from pydantic import BaseModel, Field
 
-from app.libs.svg_drawer.models.shapes.circle import Circle
-from app.libs.svg_drawer.models.shapes.eclipse import Eclipse
-from app.libs.svg_drawer.models.shapes.line import Line
-from app.libs.svg_drawer.models.shapes.rect import Rect
-from app.libs.svg_drawer.models.svg import Svg
+from app.libs.svg_drawer.v1.models.shapes.circle import Circle
+from app.libs.svg_drawer.v1.models.shapes.eclipse import Eclipse
+from app.libs.svg_drawer.v1.models.shapes.line import Line
+from app.libs.svg_drawer.v1.models.shapes.rect import Rect
+from app.libs.svg_drawer.v1.models.svg import Svg
 
 CHAT_MODEL = ChatOpenAI(model="gpt-4o-mini", temperature=0)
 
@@ -23,7 +24,7 @@ CHAT_MODEL = ChatOpenAI(model="gpt-4o-mini", temperature=0)
 class SvgDrawerState(BaseModel):
     prompt: str
     design: list[str]
-    svg: Svg  = Svg()
+    svg: Svg = Svg()
     isDone: bool = False
 
 
@@ -89,8 +90,10 @@ def draw_svg(state: SvgDrawerState) -> SvgDrawerState:
             height: Required. The height of the rectangle
             x: The x-position for the top-left corner of the rectangle
             y: The y-position for the top-left corner of the rectangle
-            rx: The x radius of the corners of the rectangle (used to round the corners). Default is 0
-            ry: The y radius of the corners of the rectangle (used to round the corners). Default is 0
+            rx: The x radius of the corners of the rectangle
+             (used to round the corners). Default is 0
+            ry: The y radius of the corners of the rectangle
+             (used to round the corners). Default is 0
             fill: Màu sắc tô nền
 
         Returns: None
@@ -99,36 +102,55 @@ def draw_svg(state: SvgDrawerState) -> SvgDrawerState:
         rect = Rect(id=rect_id, width=width, height=height, x=x, y=y, rx=rx, ry=ry, fill=fill)
         state.svg.shapes.append(rect)
 
-    tools = [
-        draw_line, draw_circle, draw_eclipse, draw_rect
-    ]
-    svg_code = ElementTree.tostring(state.svg.to_svg(), encoding="unicode")
-    agent_executor = create_agent(CHAT_MODEL, tools, system_prompt=SystemMessage(content=f"""\
-Đây là ảnh svg đã vẽ hãy gọi từng tool một để thực hiện chỉnh sửa ảnh svg này sao cho đúng yêu cầu của người dùng.
+    tools = [draw_line, draw_circle, draw_eclipse, draw_rect]
+    svg_code = ElementTree.tostring(state.svg.to_svg(), encoding="utf-8")
+    agent_executor = create_agent(
+        CHAT_MODEL,
+        tools,
+        system_prompt=SystemMessage(
+            content=f"""\
+Đây là ảnh svg đã vẽ hãy gọi từng tool một để thực hiện chỉnh sửa ảnh svg này\
+ sao cho đúng yêu cầu của người dùng.
 Nếu shape đã có trong ảnh svg rồi thì đừng vẽ lại nữa.
 ```svg
-{svg_code}
+{svg_code.decode("utf-8")}
 ```
-"""))
-    response = agent_executor.invoke({"messages": [
-        HumanMessage(content=state.design[-1])]})
-    import pdb; pdb.set_trace()
+"""
+        ),
+    )
+    agent_executor.invoke({"messages": [HumanMessage(content=state.design[-1])]})
     state.svg.display()
     return state
 
 
 class ImproveResponse(BaseModel):
-    updatedPrompt: Annotated[str, Field(description="Nếu không đúng ý định bạn vẽ thì cần update . Mô tả chi tiết cần bổ sung thêm các shape nào, kích thước ra sao.")]
-    isOk: Annotated[bool, Field(description="Nếu đúng như ý định bạn vẽ rồi thì giá trị này bằng True. Nếu không giá trị này bằng False")]
+    updatedPrompt: Annotated[
+        str,
+        Field(
+            description="Nếu không đúng ý định bạn vẽ thì cần update."
+            "Mô tả chi tiết cần bổ sung thêm các shape nào, kích thước ra sao."
+        ),
+    ]
+    isOk: Annotated[
+        bool,
+        Field(
+            description="Nếu đúng như ý định bạn vẽ rồi thì giá trị này bằng True."
+            "Nếu không giá trị này bằng False"
+        ),
+    ]
     reasoning: str
+
 
 def check(state: SvgDrawerState) -> SvgDrawerState:
     output_parser = PydanticOutputParser(pydantic_object=ImproveResponse)
-    content = ElementTree.tostring(state.svg.to_svg(), encoding="unicode")
+    content = ElementTree.tostring(state.svg.to_svg(), encoding="utf-8")
     chain = CHAT_MODEL | output_parser
-    response = chain.invoke([HumanMessage(content=f"""Đây là ảnh svg bạn vẽ
+    response = chain.invoke(
+        [
+            HumanMessage(
+                content=f"""Đây là ảnh svg bạn vẽ
 ```svg
-{content}
+{content.decode("utf-8")}
 ```
 Đây là yêu cầu từ người dùng:
 ```userPrompt
@@ -142,10 +164,12 @@ có thể vẽ như gì bạn muốn. {output_parser.get_format_instructions()}
 ```designPrompt
 {state.design[-1]}
 ```
-""")])
+"""
+            )
+        ]
+    )
     state.isDone = response.isOk
     state.design.append(response.updatedPrompt)
-    import pdb; pdb.set_trace()
     return state
 
 

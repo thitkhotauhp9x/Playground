@@ -1,16 +1,12 @@
-import numpy as np
-from pyefd import elliptic_fourier_descriptors, reconstruct_contour
-
-import numpy as np
-
-
-import numpy as np
 import json
-from typing import List, Dict, Any
-from pydantic import BaseModel, Field
-from langchain_openai import ChatOpenAI
-from langchain_core.prompts import ChatPromptTemplate
+
+import matplotlib.pyplot as plt
+import numpy as np
 from langchain_core.output_parsers import JsonOutputParser
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_openai import ChatOpenAI
+from pydantic import BaseModel, Field
+from pyefd import elliptic_fourier_descriptors, reconstruct_contour
 
 
 def generate_random_points_ordered_by_time(n, noise_level=0.2):
@@ -42,9 +38,6 @@ def d1(points):
     coeffs = elliptic_fourier_descriptors(points, order=20)
     approx = reconstruct_contour(coeffs, num_points=500)
 
-    # Vẽ kết quả
-    import matplotlib.pyplot as plt
-
     plt.plot(*np.vstack([points, points[0]]).T, "o--", label="Điểm ban đầu")
     plt.plot(approx[:, 0], approx[:, 1], label="Xấp xỉ Fourier")
     plt.axis("equal")
@@ -55,13 +48,18 @@ def d1(points):
 # 1. Định nghĩa cấu trúc dữ liệu đầu ra mong muốn từ LLM bằng Pydantic
 class FourierConfig(BaseModel):
     action: str = Field(
-        description="Hành động xử lý hình ảnh dựa trên prompt (ví dụ: 'smooth', 'scale', 'rotate', 'keep_as_is')"
+        description="Hành động xử lý hình ảnh dựa trên prompt"
+        " (ví dụ: 'smooth', 'scale', 'rotate', 'keep_as_is')"
     )
     num_coefficients: int = Field(
-        description="Số lượng hệ số Fourier (N) muốn giữ lại. Hình phức tạp cần N lớn (ví dụ: 50-100), hình đơn giản cần N nhỏ (ví dụ: 10-20)."
+        description="Số lượng hệ số Fourier (N) muốn giữ lại."
+        "Hình phức tạp cần N lớn (ví dụ: 50-100),"
+        "hình đơn giản cần N nhỏ (ví dụ: 10-20)."
     )
     transformation_matrix: list[list[float]] = Field(
-        description="Ma trận biến đổi 2x2 [[cos(a), -sin(a)], [sin(a), cos(a)]] nếu prompt yêu cầu xoay hoặc phóng to, nếu không thì để ma trận đơn vị [[1.0, 0.0], [0.0, 1.0]]."
+        description="Ma trận biến đổi 2x2 [[cos(a), -sin(a)], [sin(a), cos(a)]]"
+        "nếu prompt yêu cầu xoay hoặc phóng to,"
+        "nếu không thì để ma trận đơn vị [[1.0, 0.0], [0.0, 1.0]]."
     )
 
 
@@ -69,7 +67,8 @@ class FourierConfig(BaseModel):
 def compute_fourier_points(points: np.ndarray, num_coeffs: int) -> np.ndarray:
     """
     Biến đổi các điểm (x, y) thành dạng số phức, tính DFT,
-    giữ lại num_coeffs hệ số quan trọng nhất và nghịch đảo (IDFT) để tạo ra tọa độ (X, Y) mới.
+    giữ lại num_coeffs hệ số quan trọng nhất và nghịch đảo (IDFT) để tạo ra tọa độ
+     (X, Y) mới.
     """
     # Chuyển tọa độ (x, y) thành chuỗi số phức z = x + iy
     z = points[:, 0] + 1j * points[:, 1]
@@ -85,13 +84,14 @@ def compute_fourier_points(points: np.ndarray, num_coeffs: int) -> np.ndarray:
     filtered_fft[:half_coeffs] = z_fft[:half_coeffs]
     filtered_fft[-half_coeffs:] = z_fft[-half_coeffs:]
 
-    # Nghịch đảo Fourier (IDFT) để lấy lại tập hợp điểm (X, Y) đã được xử lý bằng chuỗi Fourier
+    # Nghịch đảo Fourier (IDFT) để lấy lại tập hợp điểm (X, Y)
+    # đã được xử lý bằng chuỗi Fourier
     z_reconstructed = np.fft.ifft(filtered_fft)
 
     # Trả về mảng các điểm (X, Y)
-    X = np.real(z_reconstructed)
-    Y = np.imag(z_reconstructed)
-    return np.column_stack((X, Y))
+    x = np.real(z_reconstructed)
+    y = np.imag(z_reconstructed)
+    return np.column_stack((x, y))
 
 
 # 3. Luồng xử lý chính kết hợp LangChain và OpenAI
@@ -107,7 +107,8 @@ def generate_fourier_shape(
     # Thiết lập Prompt Template cho LangChain
     prompt_template = ChatPromptTemplate.from_template(
         "Bạn là một chuyên gia toán học và xử lý tín hiệu.\n"
-        "Đầu vào của bạn là một tập hợp các điểm dữ liệu hình dáng và một yêu cầu vẽ hình.\n"
+        "Đầu vào của bạn là một tập hợp các điểm dữ liệu"
+        " hình dáng và một yêu cầu vẽ hình.\n"
         "Yêu cầu từ người dùng: {user_prompt}\n\n"
         "Hãy phân tích yêu cầu cấu hình chuỗi Fourier phù hợp.\n"
         "{format_instructions}"
@@ -140,15 +141,12 @@ def generate_fourier_shape(
     output_points_array = compute_fourier_points(transformed_points, num_coeffs)
 
     # Định dạng lại đầu ra thành danh sách các điểm (X, Y)
-    output_points = [
-        {"X": float(pt[0]), "Y": float(pt[1])} for pt in output_points_array
-    ]
+    output_points = [{"X": float(pt[0]), "Y": float(pt[1])} for pt in output_points_array]
 
     return output_points
 
 
-# --- VÍ DỤ SỬ DỤNG ---
-if __name__ == "__main__":
+def main():
     # Giả lập tập hợp các điểm đầu vào (Hình vuông bị nhiễu răng cưa)
     # Trong thực tế, đây là tập hợp điểm (x,y) bạn truyền vào
     # t = np.linspace(0, 2 * np.pi, 100)
@@ -162,7 +160,10 @@ if __name__ == "__main__":
     sample_points = [{"x": x, "y": y} for x, y in sample_points]
 
     # Prompt yêu cầu vẽ hình từ người dùng
-    user_prompt = "Hãy làm mịn các đường nét răng cưa này để vẽ thành một hình tròn mượt mà bằng chuỗi Fourier."
+    user_prompt = (
+        "Hãy làm mịn các đường nét răng cưa này để vẽ thành một hình tròn mượt"
+        " mà bằng chuỗi Fourier."
+    )
 
     # Chạy hàm
     result_points = generate_fourier_shape(sample_points, user_prompt)
@@ -176,10 +177,12 @@ if __name__ == "__main__":
         y = item["Y"]
         points.append((x, y))
     d1(points)
-    import pdb
 
-    pdb.set_trace()
-    pass
+
+# --- VÍ DỤ SỬ DỤNG ---
+if __name__ == "__main__":
+    main()
+
 
 # def d2():
 #     import cv2

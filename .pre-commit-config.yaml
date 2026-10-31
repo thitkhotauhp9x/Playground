@@ -13,6 +13,12 @@ repos:
 #        language: python
 #        types_or: [ python, pyi ]
 
+      - id: ruff-check
+        name: Ruff check
+        entry: poetry run ruff check --fix
+        language: python
+        types_or: [ python, pyi ]
+
       - id: ruff-format
         name: Ruff
         entry: poetry run ruff format

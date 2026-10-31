@@ -7,8 +7,8 @@ from fastapi import APIRouter, BackgroundTasks
 from pydantic import BaseModel, Field
 from starlette.responses import FileResponse
 
-from app.libs.svg_drawer.models.svg import Svg
-from app.libs.svg_drawer.svg_drawer import SvgDrawer
+from app.libs.svg_drawer.v1.models.svg import Svg
+from app.libs.svg_drawer.v1.svg_drawer import SvgDrawer
 
 svg_drawer = APIRouter(tags=["svg-drawer"])
 
@@ -18,7 +18,7 @@ class SvgDrawerInput(BaseModel):
 
 
 @svg_drawer.post("/svgdrawer")
-def draw_svg(data: SvgDrawerInput,  background_tasks: BackgroundTasks):
+def draw_svg(data: SvgDrawerInput, background_tasks: BackgroundTasks):
     result: Svg = SvgDrawer().draw(prompt=data.prompt)
 
     def remove_file(path: Path):
@@ -26,10 +26,10 @@ def draw_svg(data: SvgDrawerInput,  background_tasks: BackgroundTasks):
 
     with NamedTemporaryFile(suffix=".svg", delete=False) as temp_file:
         temp_path = Path(temp_file.name)
-        content = ElementTree.tostring(result.to_svg(), encoding="unicode")
-        temp_path.write_text(content, encoding="utf-8")
+        content = ElementTree.tostring(result.to_svg(), encoding="utf-8")
+        temp_path.write_bytes(content)
         background_tasks.add_task(remove_file, temp_path)
-        return  FileResponse(
+        return FileResponse(
             path=temp_path.as_posix(),
             filename=temp_path.name,
             media_type="image/svg+xml",

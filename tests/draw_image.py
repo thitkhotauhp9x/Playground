@@ -1,9 +1,8 @@
-from typing import List
-from langchain_openai import ChatOpenAI
 import matplotlib.pyplot as plt
+from langchain_openai import ChatOpenAI
 from pydantic import BaseModel, Field
 
-from app.libs.svg_drawer.draw_iamge import generate_random_points_ordered_by_time
+from app.libs.svg_drawer.v1.draw_iamge import generate_random_points_ordered_by_time
 
 
 class Point(BaseModel):
@@ -13,9 +12,7 @@ class Point(BaseModel):
 
 class Polygon(BaseModel):
     points: list[Point] = Field(
-        description=(
-            "List of 2D coordinates representing the adjusted polygon vertices"
-        )
+        description=("List of 2D coordinates representing the adjusted polygon vertices")
     )
 
 
@@ -43,6 +40,8 @@ def adjust_polygon(prompt: str, initial_points: list[tuple]) -> list[tuple]:
         ]
     )
 
+    if not isinstance(result, Polygon):
+        raise TypeError("Expected a Polygon object")
     return [(p.x, p.y) for p in result.points]
 
 
@@ -50,7 +49,7 @@ def plot_polygons(initial: list[tuple], adjusted: list[tuple]):
     init_closed = initial + [initial[0]]
     adj_closed = adjusted + [adjusted[0]]
 
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 6))
+    _, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 6))
 
     # Plot 1: Trước khi hiệu chỉnh
     ax1.plot(
@@ -86,10 +85,14 @@ def plot_polygons(initial: list[tuple], adjusted: list[tuple]):
     plt.show()
 
 
-if __name__ == "__main__":
+def main():
     initial = generate_random_points_ordered_by_time(n=200, noise_level=0.5)
     # sample_points = [(0, 0), (4, 0), (4, 4), (0, 4)]
     prompt_text = "Điều chỉnh lại vị trí các điểm này để tạo thành hình quả táo."
     adjusted = adjust_polygon(prompt_text, initial)
     print("Adjusted Points:", adjusted)
     plot_polygons(initial, adjusted)
+
+
+if __name__ == "__main__":
+    main()

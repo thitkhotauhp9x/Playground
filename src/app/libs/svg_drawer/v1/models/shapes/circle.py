@@ -13,11 +13,14 @@ class Circle(BaseModel):
     fill: str = Field(description="Màu sắc tô nền")
 
     def to_svg(self) -> Element:
-        svg_element = Element("circle", attrib={
-            "id": self.id,
-            "r": str(self.r),
-            "cx": str(self.cx),
-            "cy": str(self.cy),
-            "fill": self.fill,
-        })
+        svg_element = Element(
+            "circle",
+            attrib={
+                "id": self.id,
+                "r": str(self.r),
+                "cx": str(self.cx),
+                "cy": str(self.cy),
+                "fill": self.fill,
+            },
+        )
         return svg_element

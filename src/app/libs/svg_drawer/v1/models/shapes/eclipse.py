@@ -14,12 +14,15 @@ class Eclipse(BaseModel):
     id: str = Field(alias="id", description="Mã định danh ID")
 
     def to_svg(self) -> Element:
-        svg_element = Element("eclipse", attrib={
-            "id": self.id,
-            "rx": str(self.rx),
-            "ry": str(self.ry),
-            "cx": str(self.cx),
-            "cy": str(self.cy),
-            "fill": self.fill,
-        })
+        svg_element = Element(
+            "eclipse",
+            attrib={
+                "id": self.id,
+                "rx": str(self.rx),
+                "ry": str(self.ry),
+                "cx": str(self.cx),
+                "cy": str(self.cy),
+                "fill": self.fill,
+            },
+        )
         return svg_element

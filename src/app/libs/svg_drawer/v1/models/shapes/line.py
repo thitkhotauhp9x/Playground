@@ -13,12 +13,15 @@ class Line(BaseModel):
     y2: float | int = Field(description="Tọa độ y điểm kết thúc")
 
     def to_svg(self) -> Element:
-        svg_element = Element("line", attrib={
-            "id": self.id,
-            "x1": str(self.x1),
-            "y1": str(self.y1),
-            "x2": str(self.x2),
-            "y2": str(self.y2),
-            "stroke": "black",
-        })
+        svg_element = Element(
+            "line",
+            attrib={
+                "id": self.id,
+                "x1": str(self.x1),
+                "y1": str(self.y1),
+                "x2": str(self.x2),
+                "y2": str(self.y2),
+                "stroke": "black",
+            },
+        )
         return svg_element
