@@ -43,9 +43,11 @@ class Svg(BaseModel):
                 raise TypeError("Unsupported shape type")
         return svg_element
 
+    def to_bytes(self) -> bytes:
+        return ElementTree.tostring(self.to_svg(), encoding="utf-8")
+
     def display(self):
         with tempfile.NamedTemporaryFile(suffix=".svg", delete=False) as temp_file:
             file_path = Path(temp_file.name)
-            svg_code = ElementTree.tostring(self.to_svg(), encoding="utf-8")
-            file_path.write_bytes(svg_code)
+            file_path.write_bytes(self.to_bytes())
             webbrowser.open(f"file://{file_path.as_posix()}")

@@ -1,7 +1,6 @@
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 from typing import Annotated
-from xml.etree import ElementTree
 
 from fastapi import APIRouter, BackgroundTasks
 from pydantic import BaseModel, Field
@@ -26,8 +25,7 @@ def draw_svg(data: SvgDrawerInput, background_tasks: BackgroundTasks):
 
     with NamedTemporaryFile(suffix=".svg", delete=False) as temp_file:
         temp_path = Path(temp_file.name)
-        content = ElementTree.tostring(result.to_svg(), encoding="utf-8")
-        temp_path.write_bytes(content)
+        temp_path.write_bytes(result.to_bytes())
         background_tasks.add_task(remove_file, temp_path)
         return FileResponse(
             path=temp_path.as_posix(),
