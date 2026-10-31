@@ -32,7 +32,8 @@ dependencies = [
     "pillow (>=13.0.0,<14.0.0)",
     "matplotlib (>=3.11.2,<4.0.0)",
     "pyefd (>=1.8.0,<2.0.0)",
-    "opencv-python (>=5.0.0.93,<6.0.0.0)"
+    "opencv-python (>=5.0.0.93,<6.0.0.0)",
+    "pre-commit (>=4.7.0,<5.0.0)"
 ]
 
 [tool.poetry]
