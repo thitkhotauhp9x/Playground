@@ -4,8 +4,8 @@ from xml.etree.ElementTree import Element
 from pydantic import BaseModel, Field
 
 
-class Eclipse(BaseModel):
-    shape_type: Literal["eclipse"] = "eclipse"
+class Ellipse(BaseModel):
+    shape_type: Literal["ellipse"] = "ellipse"
     rx: float | int = Field(description="Bán kính hình elip theo trục x")
     ry: float | int = Field(description="Bán kính hình elip theo trục y")
     cx: float | int = Field(default=0, description="Tọa độ tâm x")
@@ -15,7 +15,7 @@ class Eclipse(BaseModel):
 
     def to_svg(self) -> Element:
         svg_element = Element(
-            "eclipse",
+            "ellipse",
             attrib={
                 "id": self.id,
                 "rx": str(self.rx),

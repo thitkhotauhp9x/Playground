@@ -32,6 +32,7 @@ Nếu shape đã có trong ảnh svg rồi thì đừng vẽ lại nữa.
 """
         ),
     )
-    agent_executor.invoke({"messages": [HumanMessage(content=state.design[-1])]})
+    response = agent_executor.invoke({"messages": [HumanMessage(content=state.design[-1])]})
+    print(response)
     state.svg.display()
     return state

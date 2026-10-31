@@ -9,7 +9,7 @@ from xml.etree.ElementTree import Element
 from pydantic import BaseModel, Field
 
 from app.libs.svg_drawer.v1.models.shapes.circle import Circle
-from app.libs.svg_drawer.v1.models.shapes.eclipse import Eclipse
+from app.libs.svg_drawer.v1.models.shapes.ellipse import Ellipse
 from app.libs.svg_drawer.v1.models.shapes.line import Line
 from app.libs.svg_drawer.v1.models.shapes.rect import Rect
 
@@ -22,7 +22,7 @@ class SvgConverter(Protocol):
 
 
 class Svg(BaseModel):
-    shapes: list[Annotated[Circle | Rect | Eclipse | Line, Field(discriminator="shape_type")]] = []
+    shapes: list[Annotated[Circle | Rect | Ellipse | Line, Field(discriminator="shape_type")]] = []
     height: int = 200
     width: int = 300
 
@@ -39,6 +39,8 @@ class Svg(BaseModel):
         for shape in self.shapes:
             if isinstance(shape, SvgConverter):
                 svg_element.append(shape.to_svg())
+            else:
+                raise TypeError("Unsupported shape type")
         return svg_element
 
     def display(self):

@@ -1,6 +1,6 @@
 from app.libs.svg_drawer.v1.models.graph_state import GraphState
 from app.libs.svg_drawer.v1.models.shapes.circle import Circle
-from app.libs.svg_drawer.v1.models.shapes.eclipse import Eclipse
+from app.libs.svg_drawer.v1.models.shapes.ellipse import Ellipse
 from app.libs.svg_drawer.v1.models.shapes.line import Line
 from app.libs.svg_drawer.v1.models.shapes.rect import Rect
 
@@ -55,7 +55,7 @@ class SvgDrawer:
 
         Returns: None
         """
-        eclipse = Eclipse(id=eclipse_id, rx=rx, ry=ry, cx=cx, cy=cy, fill=fill)
+        eclipse = Ellipse(id=eclipse_id, rx=rx, ry=ry, cx=cx, cy=cy, fill=fill)
         self._state.svg.shapes.append(eclipse)
 
     def draw_rect(self, rect_id, width, height, x, y, rx, ry, fill):

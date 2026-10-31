@@ -15,7 +15,7 @@ class Rect(BaseModel):
     ry: int
     fill: str
 
-    def to_xml(self) -> Element:
+    def to_svg(self) -> Element:
         attrs = {
             "id": str(self.id),
             "width": str(self.width),
