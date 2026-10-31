@@ -6,7 +6,7 @@ from pydantic import BaseModel, Field
 
 
 class Shape(BaseModel, ABC):
-    shape_id: Annotated[str, Field(alias="id", description="Mã định danh ID của shape")]
+    shape_id: Annotated[str, Field(description="Mã định danh ID của shape")]
 
     @abstractmethod
     def to_svg(self) -> Element:

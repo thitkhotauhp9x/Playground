@@ -2,7 +2,6 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.routes.svg_drawer import svg_drawer
-from app.routes.svg_drawer_logger import log_router
 from app.routes.text2audio import text_2_audio_router
 
 app = FastAPI()
@@ -23,4 +22,4 @@ app.add_middleware(
 
 app.include_router(text_2_audio_router)
 app.include_router(svg_drawer)
-app.include_router(log_router)
+# app.include_router(log_router)

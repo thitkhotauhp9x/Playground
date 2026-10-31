@@ -30,6 +30,7 @@ class ImproveResponse(BaseModel):
 
 
 def check(state: GraphState) -> GraphState:
+    logger.info("CHECKING SVG")
     output_parser = PydanticOutputParser(pydantic_object=ImproveResponse)
     content = ElementTree.tostring(state.svg.to_svg(), encoding="utf-8")
     chain = state.chat_model

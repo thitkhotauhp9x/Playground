@@ -1,8 +1,8 @@
-from logging import DEBUG, Formatter, Logger, getLogger
+from logging import DEBUG, Formatter, Logger, StreamHandler, getLogger
 
 from anyio.functools import lru_cache
 
-from app.routes.svg_drawer_logger import QueueLogHandler
+from app.libs.loggers.in_memory_handler import InMemoryHandler
 
 
 @lru_cache(maxsize=None)
@@ -13,11 +13,11 @@ def get_logger(name: str) -> Logger:
     logger.propagate = False
 
     formatter = Formatter("%(asctime)s - %(name)s[%(process)d] - %(levelname)s - %(message)s")
-    #
-    # stream_handler = StreamHandler()
-    # stream_handler.setLevel(DEBUG)
-    # stream_handler.setFormatter(formatter)
-    # logger.addHandler(stream_handler)
+
+    stream_handler = StreamHandler()
+    stream_handler.setLevel(DEBUG)
+    stream_handler.setFormatter(formatter)
+    logger.addHandler(stream_handler)
 
     # ile_handler = RotatingFileHandler(
     #     filename="logs/app.log",
@@ -31,9 +31,10 @@ def get_logger(name: str) -> Logger:
     # logger.addHandler(ile_handler)
     #
 
-    queue_handler = QueueLogHandler()
-    queue_handler.setLevel(DEBUG)
-    queue_handler.setFormatter(formatter)
-    logger.addHandler(queue_handler)
+    # memory_handler = InMemoryHandler()
+    #
+    # memory_handler.setLevel(DEBUG)
+    # memory_handler.setFormatter(formatter)
+    # logger.addHandler(memory_handler)
 
     return logger

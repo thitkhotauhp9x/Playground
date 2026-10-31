@@ -12,6 +12,7 @@ logger = get_logger(__name__)
 
 
 def draw_svg(state: GraphState) -> GraphState:
+    logger.info("DRAWING SVG")
     drawer = SvgDrawer(state)
 
     tools = [
