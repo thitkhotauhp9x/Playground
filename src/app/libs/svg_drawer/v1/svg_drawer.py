@@ -24,7 +24,7 @@ class SvgDrawer:
         Returns: None
 
         """
-        line = Line(id=line_id, x1=x1, x2=x2, y1=y1, y2=y2)
+        line = Line(shape_id=line_id, x1=x1, x2=x2, y1=y1, y2=y2)
         self._state.svg.shapes.append(line)
 
     def draw_circle(self, circle_id: str, r, cx, cy, fill):
@@ -39,7 +39,7 @@ class SvgDrawer:
 
         Returns: None
         """
-        circle = Circle(id=circle_id, r=r, cx=cx, cy=cy, fill=fill)
+        circle = Circle(shape_id=circle_id, r=r, cx=cx, cy=cy, fill=fill)
         self._state.svg.shapes.append(circle)
 
     def draw_eclipse(self, eclipse_id, rx, ry, cx, cy, fill):
@@ -55,7 +55,7 @@ class SvgDrawer:
 
         Returns: None
         """
-        eclipse = Ellipse(id=eclipse_id, rx=rx, ry=ry, cx=cx, cy=cy, fill=fill)
+        eclipse = Ellipse(shape_id=eclipse_id, rx=rx, ry=ry, cx=cx, cy=cy, fill=fill)
         self._state.svg.shapes.append(eclipse)
 
     def draw_rect(self, rect_id, width, height, x, y, rx, ry, fill):
@@ -76,5 +76,5 @@ class SvgDrawer:
         Returns: None
 
         """
-        rect = Rect(id=rect_id, width=width, height=height, x=x, y=y, rx=rx, ry=ry, fill=fill)
+        rect = Rect(shape_id=rect_id, width=width, height=height, x=x, y=y, rx=rx, ry=ry, fill=fill)
         self._state.svg.shapes.append(rect)
