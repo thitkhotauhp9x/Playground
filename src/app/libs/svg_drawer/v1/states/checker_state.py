@@ -1,5 +1,4 @@
 from typing import Annotated
-from xml.etree import ElementTree
 
 from langchain_core.messages import HumanMessage
 from langchain_core.output_parsers import PydanticOutputParser
@@ -32,13 +31,12 @@ class ImproveResponse(BaseModel):
 def check(state: GraphState) -> GraphState:
     logger.info("CHECKING SVG")
     output_parser = PydanticOutputParser(pydantic_object=ImproveResponse)
-    content = ElementTree.tostring(state.svg.to_svg(), encoding="utf-8")
     chain = state.chat_model
     messages = [
         HumanMessage(
             content=f"""Đây là ảnh svg bạn vẽ
 ```svg
-{content.decode("utf-8")}
+{state.svg.to_bytes().decode("utf-8")}
 ```
 Đây là yêu cầu từ người dùng:
 ```userPrompt
@@ -46,7 +44,7 @@ def check(state: GraphState) -> GraphState:
 ```
 
 Đánh giá ảnh svg bạn vẽ so với yêu cầu của người dùng.
-Nếu không đúng như ý định bạn vẽ hãy cải thiện lại designPrompt để
+Nếu không đúng với yêu cầu người dùng lại designPrompt để
 có thể vẽ như gì bạn muốn. {output_parser.get_format_instructions()}
 
 ```designPrompt
