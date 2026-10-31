@@ -1,0 +1,40 @@
+repos:
+  - repo: local
+    hooks:
+      - id: pyupgrade
+        name: PyUpgrade
+        entry: poetry run pyupgrade --py312-plus
+        language: python
+        types_or: [ python, pyi ]
+
+#      - id: isort
+#        name: Isort
+#        entry: poetry run isort
+#        language: python
+#        types_or: [ python, pyi ]
+
+      - id: ruff-format
+        name: Ruff
+        entry: poetry run ruff format
+        language: python
+        types_or: [ python, pyi ]
+
+      - id: mypy
+        name: Mypy
+        entry: poetry run mypy
+        language: python
+        types_or: [ python, pyi ]
+        args: [ "--check-untyped-defs", "--ignore-missing-imports"]
+
+      - id: pylint
+        name: Pylint
+        entry: poetry run pylint
+        language: python
+        types_or: [ python, pyi ]
+        args: ["--disable", "missing-module-docstring,missing-class-docstring,missing-function-docstring"]
+
+      - id: pyright
+        name: Pyright
+        entry: poetry run pyright
+        language: python
+        types_or: [ python, pyi ]
