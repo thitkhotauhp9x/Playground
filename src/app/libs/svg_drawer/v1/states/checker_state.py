@@ -29,11 +29,10 @@ class ImproveResponse(BaseModel):
 def check(state: GraphState) -> GraphState:
     output_parser = PydanticOutputParser(pydantic_object=ImproveResponse)
     content = ElementTree.tostring(state.svg.to_svg(), encoding="utf-8")
-    chain = state.chat_model | output_parser
-    response = chain.invoke(
-        [
-            HumanMessage(
-                content=f"""Đây là ảnh svg bạn vẽ
+    chain = state.chat_model
+    messages = [
+        HumanMessage(
+            content=f"""Đây là ảnh svg bạn vẽ
 ```svg
 {content.decode("utf-8")}
 ```
@@ -50,9 +49,13 @@ có thể vẽ như gì bạn muốn. {output_parser.get_format_instructions()}
 {state.design[-1]}
 ```
 """
-            )
-        ]
-    )
-    state.isDone = response.isOk
-    state.design.append(response.updatedPrompt)
+        )
+    ]
+    state.history += messages
+    response = chain.invoke(messages)
+    state.history.append(response)
+
+    pydantic_obj = output_parser.invoke(response)
+    state.isDone = pydantic_obj.isOk
+    state.design.append(pydantic_obj.updatedPrompt)
     return state
