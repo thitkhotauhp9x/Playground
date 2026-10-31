@@ -18,7 +18,7 @@ class SvgConverter(Protocol):
         pass
 
 class Svg(BaseModel):
-    shapes: list[Annotated[Circle | Rect | Eclipse | Line, Field(discriminator="shape_type")]]
+    shapes: list[Annotated[Circle | Rect | Eclipse | Line, Field(discriminator="shape_type")]] = []
     height: int = 200
     width: int = 300
 
