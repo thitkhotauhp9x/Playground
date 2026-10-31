@@ -33,6 +33,7 @@ dependencies = [
     "pyefd (>=1.8.0,<2.0.0)",
     "opencv-python (>=5.0.0.93,<6.0.0.0)",
     "langchain-core (>=1.7.3,<2.0.0)",
+    "langgraph (>=1.2.19,<2.0.0)",
 ]
 
 [tool.poetry]

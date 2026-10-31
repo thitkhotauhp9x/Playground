@@ -7,7 +7,6 @@ from app.libs.svg_drawer.v2.models.graph_state import GraphState
 from app.libs.svg_drawer.v2.models.svg_response import SVGResponse
 
 
-# Node 1: Chuyển đổi prompt thành bản thiết kế (Blueprint)
 def create_blueprint_node(state: GraphState):
     query = state.query
     llm = ChatOpenAI(model="gpt-4o", temperature=0.5)

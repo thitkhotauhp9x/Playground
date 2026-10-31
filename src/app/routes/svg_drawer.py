@@ -8,7 +8,7 @@ from pydantic import BaseModel, Field
 from starlette.responses import FileResponse
 
 from app.libs.svg_drawer.v1.models.svg import Svg
-from app.libs.svg_drawer.v1.svg_drawer import SvgDrawer
+from app.libs.svg_drawer.v1.svg_creator import SvgCreator
 
 svg_drawer = APIRouter(tags=["svg-drawer"])
 
@@ -19,7 +19,7 @@ class SvgDrawerInput(BaseModel):
 
 @svg_drawer.post("/svgdrawer")
 def draw_svg(data: SvgDrawerInput, background_tasks: BackgroundTasks):
-    result: Svg = SvgDrawer().draw(prompt=data.prompt)
+    result: Svg = SvgCreator().create(prompt=data.prompt)
 
     def remove_file(path: Path):
         path.unlink(missing_ok=True)
