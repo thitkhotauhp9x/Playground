@@ -32,6 +32,7 @@ dependencies = [
     "matplotlib (>=3.11.2,<4.0.0)",
     "pyefd (>=1.8.0,<2.0.0)",
     "opencv-python (>=5.0.0.93,<6.0.0.0)",
+    "langchain-core (>=1.7.3,<2.0.0)",
 ]
 
 [tool.poetry]
