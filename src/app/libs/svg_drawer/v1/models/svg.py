@@ -1,8 +1,7 @@
-import abc
 import tempfile
 import webbrowser
 from pathlib import Path
-from typing import Annotated, Protocol, runtime_checkable
+from typing import Annotated
 from xml.etree import ElementTree
 from xml.etree.ElementTree import Element
 
@@ -12,13 +11,7 @@ from app.libs.svg_drawer.v1.models.shapes.circle import Circle
 from app.libs.svg_drawer.v1.models.shapes.ellipse import Ellipse
 from app.libs.svg_drawer.v1.models.shapes.line import Line
 from app.libs.svg_drawer.v1.models.shapes.rect import Rect
-
-
-@runtime_checkable
-class SvgConverter(Protocol):
-    @abc.abstractmethod
-    def to_svg(self) -> Element:
-        pass
+from app.libs.svg_drawer.v1.models.shapes.shape import Shape
 
 
 class Svg(BaseModel):
@@ -37,7 +30,7 @@ class Svg(BaseModel):
         )
 
         for shape in self.shapes:
-            if isinstance(shape, SvgConverter):
+            if isinstance(shape, Shape):
                 svg_element.append(shape.to_svg())
             else:
                 raise TypeError("Unsupported shape type")
