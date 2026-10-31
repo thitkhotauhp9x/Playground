@@ -1,12 +1,13 @@
 from typing import Literal
 from xml.etree.ElementTree import Element
 
-from pydantic import BaseModel, Field
+from pydantic import Field
+
+from app.libs.svg_drawer.v1.models.shapes.shape import Shape
 
 
-class Line(BaseModel):
+class Line(Shape):
     shape_type: Literal["line"] = "line"
-    id: str
     x1: float | int = Field(default=0, description="Tọa độ x điểm bắt đầu")
     y1: float | int = Field(default=0, description="Tọa độ y điểm bắt đầu")
     x2: float | int = Field(description="Tọa độ x điểm kết thúc")
@@ -16,7 +17,7 @@ class Line(BaseModel):
         svg_element = Element(
             "line",
             attrib={
-                "id": self.id,
+                "id": self.shape_id,
                 "x1": str(self.x1),
                 "y1": str(self.y1),
                 "x2": str(self.x2),

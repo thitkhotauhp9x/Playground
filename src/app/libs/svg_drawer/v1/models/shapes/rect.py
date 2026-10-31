@@ -1,12 +1,11 @@
 from typing import Literal
 from xml.etree.ElementTree import Element
 
-from pydantic import BaseModel
+from app.libs.svg_drawer.v1.models.shapes.shape import Shape
 
 
-class Rect(BaseModel):
+class Rect(Shape):
     shape_type: Literal["rect"] = "rect"
-    id: str
     width: int
     height: int
     x: int
@@ -17,7 +16,7 @@ class Rect(BaseModel):
 
     def to_svg(self) -> Element:
         attrs = {
-            "id": str(self.id),
+            "id": str(self.shape_id),
             "width": str(self.width),
             "height": str(self.height),
             "x": str(self.x),

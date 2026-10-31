@@ -1,12 +1,13 @@
 from typing import Literal
 from xml.etree.ElementTree import Element
 
-from pydantic import BaseModel, Field
+from pydantic import Field
+
+from app.libs.svg_drawer.v1.models.shapes.shape import Shape
 
 
-class Circle(BaseModel):
+class Circle(Shape):
     shape_type: Literal["circle"] = "circle"
-    id: str = Field(alias="id", description="Mã định danh ID")
     r: float | int = Field(description="Bán kính hình tròn")
     cx: float | int = Field(default=0, description="Tọa độ tâm x")
     cy: float | int = Field(default=0, description="Tọa độ tâm y")
@@ -16,7 +17,7 @@ class Circle(BaseModel):
         svg_element = Element(
             "circle",
             attrib={
-                "id": self.id,
+                "id": self.shape_id,
                 "r": str(self.r),
                 "cx": str(self.cx),
                 "cy": str(self.cy),
