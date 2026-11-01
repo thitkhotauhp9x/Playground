@@ -13,13 +13,14 @@ logger = get_logger(__name__)
 
 def draw_svg(state: GraphState) -> GraphState:
     logger.info("DRAWING SVG")
-    drawer = SvgDrawer(state)
+    drawer = SvgDrawer(state.svg)
 
     tools = [
         StructuredTool.from_function(func=drawer.draw_line),
         StructuredTool.from_function(func=drawer.draw_circle),
         StructuredTool.from_function(func=drawer.draw_eclipse),
         StructuredTool.from_function(func=drawer.draw_rect),
+        StructuredTool.from_function(func=drawer.delete_shape),
     ]
     svg_code = ElementTree.tostring(state.svg.to_svg(), encoding="utf-8")
     agent_executor = create_agent(
@@ -40,6 +41,5 @@ Nếu shape đã có trong ảnh svg rồi thì đừng vẽ lại nữa.
 
     response = agent_executor.invoke({"messages": state.history})
     state.history += response["messages"]
-    logger.debug(state.model_dump_json(indent=2))
     state.svg.display()
     return state

@@ -1,13 +1,14 @@
-from app.libs.svg_drawer.v1.models.graph_state import GraphState
 from app.libs.svg_drawer.v1.models.shapes.circle import Circle
 from app.libs.svg_drawer.v1.models.shapes.ellipse import Ellipse
 from app.libs.svg_drawer.v1.models.shapes.line import Line
 from app.libs.svg_drawer.v1.models.shapes.rect import Rect
+from app.libs.svg_drawer.v1.models.shapes.shape import Shape
+from app.libs.svg_drawer.v1.models.svg import Svg
 
 
 class SvgDrawer:
-    def __init__(self, state: GraphState):
-        self._state = state
+    def __init__(self, svg: Svg):
+        self._svg = svg
 
     def draw_line(
         self, line_id: str, x1: float | int, x2: float | int, y1: float | int, y2: float | int
@@ -25,7 +26,7 @@ class SvgDrawer:
 
         """
         line = Line(shape_id=line_id, x1=x1, x2=x2, y1=y1, y2=y2)
-        self._state.svg.shapes.append(line)
+        self._svg.shapes.append(line)
 
     def draw_circle(self, circle_id: str, r, cx, cy, fill):
         """
@@ -40,7 +41,7 @@ class SvgDrawer:
         Returns: None
         """
         circle = Circle(shape_id=circle_id, r=r, cx=cx, cy=cy, fill=fill)
-        self._state.svg.shapes.append(circle)
+        self._svg.shapes.append(circle)
 
     def draw_eclipse(self, eclipse_id, rx, ry, cx, cy, fill):
         """
@@ -56,7 +57,7 @@ class SvgDrawer:
         Returns: None
         """
         eclipse = Ellipse(shape_id=eclipse_id, rx=rx, ry=ry, cx=cx, cy=cy, fill=fill)
-        self._state.svg.shapes.append(eclipse)
+        self._svg.shapes.append(eclipse)
 
     def draw_rect(self, rect_id, width, height, x, y, rx, ry, fill):
         """
@@ -77,4 +78,20 @@ class SvgDrawer:
 
         """
         rect = Rect(shape_id=rect_id, width=width, height=height, x=x, y=y, rx=rx, ry=ry, fill=fill)
-        self._state.svg.shapes.append(rect)
+        self._svg.shapes.append(rect)
+
+    def delete_shape(self, shape_id: str) -> None:
+        """
+        Delete a shape by its id
+        Args:
+            shape_id: Shape id
+
+        Returns: None
+
+        """
+        for shape in self._svg.shapes:
+            if isinstance(shape, Shape):
+                if shape_id == shape.shape_id:
+                    self._svg.shapes.remove(shape)
+            else:
+                raise TypeError("type(shape) != Shape")

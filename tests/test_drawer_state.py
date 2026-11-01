@@ -16,7 +16,7 @@ def test_draw_a_circle():
 
     state = draw_svg(state)
     assert state.svg.shapes == [
-        Circle(shape_type="circle", id="circle1", r=50, cx=150, cy=100, fill="blue")
+        Circle(shape_type="circle", shape_id="circle1", r=50, cx=150, cy=100, fill="blue")
     ]
 
 
@@ -31,7 +31,15 @@ def test_draw_a_rectangle():
     state = draw_svg(state)
     assert state.svg.shapes == [
         Rect(
-            shape_type="rect", id="rect1", width=100, height=50, x=50, y=75, rx=0, ry=0, fill="blue"
+            shape_type="rect",
+            shape_id="rect1",
+            width=100,
+            height=50,
+            x=50,
+            y=75,
+            rx=0,
+            ry=0,
+            fill="blue",
         )
     ]
 
@@ -47,7 +55,9 @@ def test_draw_a_ellipse():
 
     state = draw_svg(state)
     assert state.svg.shapes == [
-        Ellipse(shape_type="ellipse", rx=50, ry=30, cx=150, cy=100, fill="blue", id="eclipse1")
+        Ellipse(
+            shape_type="ellipse", rx=50, ry=30, cx=150, cy=100, fill="blue", shape_id="eclipse1"
+        )
     ]
 
 
@@ -59,4 +69,4 @@ def test_draw_a_line():
     state = GraphState(prompt=prompt, design=[prompt], chat_model=CHAT_MODEL)
 
     state = draw_svg(state)
-    assert state.svg.shapes == [Line(shape_type="line", id="line1", x1=0, y1=0, x2=300, y2=0)]
+    assert state.svg.shapes == [Line(shape_type="line", shape_id="line1", x1=0, y1=0, x2=300, y2=0)]
