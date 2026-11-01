@@ -95,7 +95,15 @@ class SvgDrawer:
         Args:
             path_id:
             d: SVG path data using M, L, H, V, C, S, Q, T, A, and Z commands
-                use C or Q for smooth curves"
+               Follow these geometric construction rules:
+               - Use A commands for circular arcs and ellipses.
+               - For a complete circle using A commands, use at least two
+                 semicircular arcs instead of a single arc.
+               - Never use an A command whose start and end points are identical.
+               - Ensure connected segments meet exactly at their endpoints.
+               - Preserve specified radii, dimensions, and geometric proportions.
+               - Close enclosed shapes using Z when appropriate.
+               Use C or Q for smooth Bézier curves when appropriate.
             fill:
             stroke:
             stroke_width:

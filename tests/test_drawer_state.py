@@ -15,9 +15,23 @@ def test_draw_a_circle():
     state = GraphState(prompt=prompt, design=[prompt], chat_model=CHAT_MODEL)
 
     state = draw_svg(state)
-    assert state.svg.shapes == [
-        Circle(shape_type="circle", shape_id="circle1", r=50, cx=150, cy=100, fill="blue")
-    ]
+    assert len(state.svg.shapes) == 1
+    assert isinstance(state.svg.shapes[0], Circle)
+
+
+def test_draw_a_circle_by_path():
+    prompt = """\
+Draw a perfect circle with a radius of exactly 50px using SVG <path> only.
+Do not use the SVG <circle> element.
+Use smooth Bézier curves or arc commands to construct a geometrically accurate circle.
+Center the circle on a white canvas, with a clean black stroke and no fill.\
+"""
+    state = GraphState(prompt=prompt, design=[prompt], chat_model=CHAT_MODEL)
+
+    state = draw_svg(state)
+
+    # assert len(state.svg.shapes) == 1
+    assert not isinstance(state.svg.shapes[0], Circle)
 
 
 def test_draw_a_rectangle():

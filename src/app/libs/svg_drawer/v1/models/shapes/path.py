@@ -13,8 +13,16 @@ class PathShape(Shape):
     shape_type: Literal["path"] = "path"
     d: str = Field(
         description=(
-            "SVG path data using M, L, H, V, C, S, Q, T, A, and Z commands; "
-            "use C or Q for smooth curves"
+            "SVG path data using standard M, L, H, V, C, S, Q, T, A, and Z commands. "
+            "Follow these geometric construction rules:\n"
+            "- Use A commands for circular arcs and ellipses.\n"
+            "- For a complete circle using A commands, use at least two "
+            "semicircular arcs instead of a single arc.\n"
+            "- Never use an A command whose start and end points are identical.\n"
+            "- Ensure connected segments meet exactly at their endpoints.\n"
+            "- Preserve specified radii, dimensions, and geometric proportions.\n"
+            "- Close enclosed shapes using Z when appropriate.\n"
+            "Use C or Q for smooth Bézier curves when appropriate."
         ),
         min_length=1,
         max_length=4000,
