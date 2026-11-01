@@ -47,4 +47,5 @@ SVG hiện tại:
 
     response = agent_executor.invoke({"messages": state.history})
     state.history += response["messages"]
+    state.svg.display()
     return state
