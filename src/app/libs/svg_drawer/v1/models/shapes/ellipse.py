@@ -13,6 +13,8 @@ class Ellipse(Shape):
     cx: float | int = Field(default=0, description="Tọa độ tâm x")
     cy: float | int = Field(default=0, description="Tọa độ tâm y")
     fill: str = Field(description="Màu sắc tô nền")
+    stroke: str = Field(default="#3D342F", description="Màu viền")
+    stroke_width: float = Field(default=2.5, description="Độ dày viền")
 
     def to_svg(self) -> Element:
         svg_element = Element(
@@ -24,6 +26,8 @@ class Ellipse(Shape):
                 "cx": str(self.cx),
                 "cy": str(self.cy),
                 "fill": self.fill,
+                "stroke": self.stroke,
+                "stroke-width": str(self.stroke_width),
             },
         )
         return svg_element

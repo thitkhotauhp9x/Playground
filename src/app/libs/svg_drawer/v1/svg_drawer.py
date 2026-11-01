@@ -1,6 +1,7 @@
 from app.libs.svg_drawer.v1.models.shapes.circle import Circle
 from app.libs.svg_drawer.v1.models.shapes.ellipse import Ellipse
 from app.libs.svg_drawer.v1.models.shapes.line import Line
+from app.libs.svg_drawer.v1.models.shapes.path import PathShape
 from app.libs.svg_drawer.v1.models.shapes.rect import Rect
 from app.libs.svg_drawer.v1.models.shapes.shape import Shape
 from app.libs.svg_drawer.v1.models.svg import Svg
@@ -80,6 +81,38 @@ class SvgDrawer:
         rect = Rect(shape_id=rect_id, width=width, height=height, x=x, y=y, rx=rx, ry=ry, fill=fill)
         self._svg.shapes.append(rect)
 
+    def draw_path(
+        self,
+        path_id: str,
+        d: str,
+        fill: str = "none",
+        stroke: str = "#3D342F",
+        stroke_width: float = 2.5,
+    ) -> None:
+        """
+        Draw a freeform SVG path, including smooth curves and closed silhouettes.
+
+        Args:
+            path_id:
+            d: SVG path data using M, L, H, V, C, S, Q, T, A, and Z commands
+                use C or Q for smooth curves"
+            fill:
+            stroke:
+            stroke_width:
+
+        Returns:
+
+        """
+        self._svg.shapes.append(
+            PathShape(
+                shape_id=path_id,
+                d=d,
+                fill=fill,
+                stroke=stroke,
+                stroke_width=stroke_width,
+            )
+        )
+
     def delete_shape(self, shape_id: str) -> None:
         """
         Delete a shape by its id
@@ -93,5 +126,6 @@ class SvgDrawer:
             if isinstance(shape, Shape):
                 if shape_id == shape.shape_id:
                     self._svg.shapes.remove(shape)
+                    self._svg.display()
             else:
                 raise TypeError("type(shape) != Shape")

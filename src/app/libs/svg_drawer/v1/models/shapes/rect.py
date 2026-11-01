@@ -13,6 +13,8 @@ class Rect(Shape):
     rx: int
     ry: int
     fill: str
+    stroke: str = "#3D342F"
+    stroke_width: float = 2.5
 
     def to_svg(self) -> Element:
         attrs = {
@@ -24,5 +26,7 @@ class Rect(Shape):
             "rx": str(self.rx),
             "ry": str(self.ry),
             "fill": self.fill,
+            "stroke": self.stroke,
+            "stroke-width": str(self.stroke_width),
         }
         return Element("rect", attrib=attrs)

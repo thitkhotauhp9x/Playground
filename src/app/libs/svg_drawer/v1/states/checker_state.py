@@ -7,6 +7,7 @@ from rich.console import Console
 from rich.markdown import Markdown
 
 from app.libs.loggers import get_logger
+from app.libs.svg_drawer.v1.design_rules import DESIGN_RULES
 from app.libs.svg_drawer.v1.models.graph_state import GraphState
 
 logger = get_logger(__name__)
@@ -18,11 +19,14 @@ class BaseResponse(BaseModel):
     reasoning: Annotated[
         str,
         Field(
-            description="Step-by-step reasoning or thought process used to arrive at the final result. "
+            description="Step-by-step reasoning or thought process used to arrive "
+            "at the final result. "
             "Always generate this first.\n"
-            "CRITICAL: Do NOT assume, extrapolate, or invent any missing input values or contextual facts."
+            "CRITICAL: Do NOT assume, extrapolate, or invent any missing input values"
+            " or contextual facts."
             "Work STRICTLY with the provided inputs."
-            "If required inputs are missing or ambiguous, state the exact missing information here and fail "
+            "If required inputs are missing or ambiguous, state the exact missing information"
+            " here and fail "
             "gracefully by returning an error."
         ),
     ]
@@ -70,6 +74,9 @@ def check(state: GraphState) -> GraphState:
 ```
 
 Kiểm tra xem ảnh svg đã đáp ứng yêu cầu từ người dùng chưa.
+Đánh giá thêm theo các quy tắc sau; chỉ đặt isOk=true khi chủ thể dễ nhận ra, bố cục
+cân đối, tỉ lệ hợp lý, màu và nét nhất quán, không có phần bị cắt:
+{DESIGN_RULES}
 {output_parser.get_format_instructions()}\
 """
     console.print(Markdown(message_content))

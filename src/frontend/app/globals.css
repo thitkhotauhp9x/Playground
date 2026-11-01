@@ -1,29 +1,16 @@
-/*@import "tailwindcss";*/
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600;1,700&display=swap');
+@import "tailwindcss";
 
-/*:root {*/
-/*  --background: #ffffff;*/
-/*  --foreground: #171717;*/
-/*}*/
-
-/*@theme inline {*/
-/*  --color-background: var(--background);*/
-/*  --color-foreground: var(--foreground);*/
-/*  --font-sans: var(--font-geist-sans);*/
-/*  --font-mono: var(--font-geist-mono);*/
-/*}*/
-
-/*@media (prefers-color-scheme: dark) {*/
-/*  :root {*/
-/*    --background: #0a0a0a;*/
-/*    --foreground: #ededed;*/
-/*  }*/
-/*}*/
-
-/*body {*/
-/*  background: var(--background);*/
-/*  color: var(--foreground);*/
-/*  font-family: Arial, Helvetica, sans-serif;*/
-/*}*/
-* {
-    /*outline: 1px dotted red;*/
-}
+:root { --ink: #292920; --muted: #87877b; --paper: #faf9f5; --green: #587a52; --line: #e8e6dc; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--paper); color: var(--ink); font-family: 'DM Sans', Arial, sans-serif; }
+button, textarea { font: inherit; }
+.workspace { min-height: 100vh; padding: 0 7.1vw; background-image: radial-gradient(#dfded4 0.7px, transparent 0.7px); background-size: 19px 19px; }
+.topbar { height: 76px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(41,41,32,.09); }
+.brand { font-size: 19px; font-weight: 700; letter-spacing: -.9px; text-decoration: none; color: var(--ink); }.brand span:last-child { color: var(--green); }.brand-mark { display: inline-grid; place-items: center; width: 27px; height: 27px; margin-right: 8px; color: white; background: var(--green); border-radius: 9px; font-size: 17px; }
+.topbar-note, footer { color: var(--muted); font-size: 12px; }.hero { text-align: center; padding: 55px 16px 31px; }.eyebrow { font: 500 10px 'DM Mono', monospace; letter-spacing: 1.5px; color: var(--green); }.eyebrow-dot { display: inline-block; width: 6px; height: 6px; background: #87a379; border-radius: 50%; margin: 0 7px 1px 0; }
+h1 { font: 600 clamp(45px, 6vw, 67px)/.98 'Playfair Display', Georgia, serif; letter-spacing: -2.9px; margin: 17px 0 13px; }h1 em { color: var(--green); }.intro { color: #77776d; font-size: 14px; line-height: 1.6; margin: 0 auto; max-width: 430px; }
+.studio { max-width: 710px; margin: auto; }.prompt-card { background: white; border: 1px solid var(--line); border-radius: 13px; padding: 19px 20px 13px; box-shadow: 0 6px 24px rgba(64,59,39,.055); }.prompt-card label { display: block; font-weight: 600; font-size: 12px; margin-bottom: 9px; }.prompt-card textarea { display: block; resize: vertical; width: 100%; min-height: 73px; border: 0; outline: none; color: var(--ink); font-size: 15px; line-height: 1.6; }.prompt-card textarea::placeholder { color: #aaa99f; }.prompt-bottom { display: flex; justify-content: space-between; align-items: center; padding-top: 10px; border-top: 1px solid #f0efe9; color: #aaa99f; font: 10px 'DM Mono', monospace; }.prompt-bottom button { padding: 10px 16px; border: 0; border-radius: 7px; color: white; background: var(--green); font-size: 12px; font-weight: 600; cursor: pointer; }.prompt-bottom button:disabled { opacity: .5; cursor: not-allowed; }.prompt-bottom button span:last-child { margin-left: 7px; }.spinner { display: inline-block; width: 11px; height: 11px; margin: 0 5px -2px 0; border: 1px solid rgba(255,255,255,.45); border-top-color: white; border-radius: 50%; animation: spin .8s linear infinite; }@keyframes spin { to { transform: rotate(360deg); } }
+.examples { display: flex; align-items: center; flex-wrap: wrap; gap: 7px; padding: 13px 2px 16px; }.examples > span { color: #99988e; font: 9px 'DM Mono', monospace; letter-spacing: .8px; margin-right: 3px; }.examples button { border: 1px solid #e7e5dc; border-radius: 20px; background: rgba(255,255,255,.65); color: #77776c; padding: 6px 10px; font-size: 10px; cursor: pointer; }.examples button:hover { border-color: #aebba4; color: var(--green); }
+.canvas-card { height: 300px; overflow: hidden; position: relative; border: 1px solid var(--line); border-radius: 12px; background-color: #fffefa; background-image: linear-gradient(#f0eee6 1px, transparent 1px), linear-gradient(90deg, #f0eee6 1px, transparent 1px); background-size: 24px 24px; }.empty-state { display: flex; height: 100%; align-items: center; flex-direction: column; justify-content: center; }.empty-art { width: 120px; height: 92px; position: relative; margin-bottom: 10px; overflow: hidden; }.sun { position: absolute; right: 19px; top: 7px; width: 28px; height: 28px; border-radius: 50%; background: #e8bb68; }.hill { position: absolute; bottom: -37px; border-radius: 50%; transform: rotate(-15deg); }.hill-back { width: 126px; height: 80px; left: -34px; background: #d5dfc8; }.hill-front { width: 136px; height: 80px; right: -42px; bottom: -48px; background: #8da582; }.flower { position: absolute; color: #fff8e8; font-size: 18px; }.flower-one { bottom: 10px; left: 30px; }.flower-two { bottom: 18px; right: 29px; font-size: 13px; }.empty-state strong { font: 600 15px 'Playfair Display', Georgia, serif; }.empty-state > span:last-child { color: #9b9a90; font-size: 11px; margin-top: 5px; }.canvas-card.has-art { background: white; }.canvas-toolbar { display: flex; align-items: center; justify-content: space-between; height: 39px; padding: 0 13px; background: #fffefa; border-bottom: 1px solid var(--line); font: 9px 'DM Mono', monospace; color: #77776d; }.canvas-toolbar i { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #8ba77e; margin: 0 6px 1px 0; }.canvas-toolbar a { color: var(--green); text-decoration: none; font: 600 10px 'DM Sans', sans-serif; }.canvas-toolbar a span { margin-left: 5px; }.canvas-card iframe { border: 0; width: 100%; height: calc(100% - 39px); background: white; }.error-message { color: #a83d32; font-size: 12px; padding: 10px 12px; background: #fff2ef; border-radius: 7px; }footer { text-align: center; padding: 24px 0 18px; font: 10px 'DM Mono', monospace; }footer span { color: var(--green); padding-left: 4px; }
+@media (max-width: 600px) { .workspace { padding: 0 18px; }.topbar { height: 62px; }.topbar-note { font-size: 10px; }.hero { padding-top: 43px; }.examples { align-items: flex-start; }.examples > span { width: 100%; }.canvas-card { height: 270px; } }

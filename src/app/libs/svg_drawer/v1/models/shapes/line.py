@@ -12,6 +12,8 @@ class Line(Shape):
     y1: float | int = Field(default=0, description="Tọa độ y điểm bắt đầu")
     x2: float | int = Field(description="Tọa độ x điểm kết thúc")
     y2: float | int = Field(description="Tọa độ y điểm kết thúc")
+    stroke: str = Field(default="#3D342F", description="Màu nét")
+    stroke_width: float = Field(default=2.5, description="Độ dày nét")
 
     def to_svg(self) -> Element:
         svg_element = Element(
@@ -22,7 +24,10 @@ class Line(Shape):
                 "y1": str(self.y1),
                 "x2": str(self.x2),
                 "y2": str(self.y2),
-                "stroke": "black",
+                "stroke": self.stroke,
+                "stroke-width": str(self.stroke_width),
+                "stroke-linecap": "round",
+                "stroke-linejoin": "round",
             },
         )
         return svg_element

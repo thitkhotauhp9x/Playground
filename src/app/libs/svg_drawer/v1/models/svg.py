@@ -10,12 +10,15 @@ from pydantic import BaseModel, Field
 from app.libs.svg_drawer.v1.models.shapes.circle import Circle
 from app.libs.svg_drawer.v1.models.shapes.ellipse import Ellipse
 from app.libs.svg_drawer.v1.models.shapes.line import Line
+from app.libs.svg_drawer.v1.models.shapes.path import PathShape
 from app.libs.svg_drawer.v1.models.shapes.rect import Rect
 from app.libs.svg_drawer.v1.models.shapes.shape import Shape
 
 
 class Svg(BaseModel):
-    shapes: list[Annotated[Circle | Rect | Ellipse | Line, Field(discriminator="shape_type")]] = []
+    shapes: list[
+        Annotated[Circle | Rect | Ellipse | Line | PathShape, Field(discriminator="shape_type")]
+    ] = Field(default_factory=list)
     height: int = 200
     width: int = 300
 
