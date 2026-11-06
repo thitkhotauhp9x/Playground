@@ -30,7 +30,6 @@ Center the circle on a white canvas, with a clean black stroke and no fill.\
 
     state = draw_svg(state)
 
-    # assert len(state.svg.shapes) == 1
     assert not isinstance(state.svg.shapes[0], Circle)
 
 
