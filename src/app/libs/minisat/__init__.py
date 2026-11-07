@@ -99,3 +99,19 @@ def read_number(solution, variables):
 
 def group_by(items, key):
     return itertools.groupby(sorted(items, key=key), key=key)
+
+
+def int_to_binary(number: int) -> list[bool]:
+    if number == 0:
+        return [False]
+
+    remainder_list: list[bool] = []
+    temp = number
+
+    while temp > 0:
+        remainder = temp % 2
+        remainder_list.append(bool(remainder))
+        temp = temp // 2
+
+    remainder_list.reverse()
+    return remainder_list
