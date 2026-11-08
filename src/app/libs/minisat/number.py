@@ -6,6 +6,11 @@ from sympy.logic.boolalg import Boolean
 
 from app.libs.minisat.numbered_symbol_container import NumberedSymbolContainer
 
+NUMBER_RESULT_MAPPING: dict[bool, str] = {
+    True: "1",
+    False: "0",
+}
+
 
 class Number(UserList[Symbol]):
     @classmethod
@@ -14,18 +19,14 @@ class Number(UserList[Symbol]):
         vs = []
         for _ in range(0, buffer_size, 1):
             vs.append(next(ns))
+
         return cls(*vs)
 
     def get_value(self, solution) -> int:
-        result_mapping: dict[bool, str] = {
-            True: "1",
-            False: "0",
-        }
         code = ""
-
         for variable in self.data:
             result = solution.get(variable)
-            code += result_mapping[result]
+            code += NUMBER_RESULT_MAPPING[result]
 
         return int(code, 2)
 
