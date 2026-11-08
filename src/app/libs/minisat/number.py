@@ -4,6 +4,7 @@ from functools import singledispatch
 from sympy import And, Equivalent, Not, Or, Symbol, Xor, numbered_symbols
 from sympy.logic.boolalg import Boolean
 
+from app.libs.minisat import int_to_bin
 from app.libs.minisat.numbered_symbol_container import NumberedSymbolContainer
 
 NUMBER_RESULT_MAPPING: dict[bool, str] = {
@@ -29,18 +30,6 @@ class Number(UserList[Symbol]):
             code += NUMBER_RESULT_MAPPING[result]
 
         return int(code, 2)
-
-
-def int_to_bin(value: int, length: int) -> list[bool]:
-    bool_mapping = {
-        "0": False,
-        "1": True,
-    }
-
-    result: list[bool] = []
-    for code in f"{value:0{length}b}":
-        result.append(bool_mapping[code])
-    return result
 
 
 def add(first: Number, second: Number, result: Number) -> Boolean:
