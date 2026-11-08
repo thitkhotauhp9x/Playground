@@ -30,6 +30,18 @@ class Number(UserList[Symbol]):
         return int(code, 2)
 
 
+def int_to_bin(value: int, length: int) -> list[bool]:
+    bool_mapping = {
+        "0": False,
+        "1": True,
+    }
+
+    result: list[bool] = []
+    for code in f"{value:0{length}b}":
+        result.append(bool_mapping[code])
+    return result
+
+
 def add(first: Number, second: Number, result: Number) -> Boolean:
     if len(first) != len(second) != len(result):
         raise ValueError("Arrays must have the same length")
@@ -51,18 +63,6 @@ def add(first: Number, second: Number, result: Number) -> Boolean:
         expr = And(expr, Equivalent(rc[i], Or(And(ra_i, rb_i), And(rc[i - 1], Or(ra_i, rb_i)))))
 
     return expr
-
-
-def int_to_bin(value: int, length: int) -> list[bool]:
-    bool_mapping = {
-        "0": False,
-        "1": True,
-    }
-
-    result: list[bool] = []
-    for code in f"{value:0{length}b}":
-        result.append(bool_mapping[code])
-    return result
 
 
 @singledispatch
