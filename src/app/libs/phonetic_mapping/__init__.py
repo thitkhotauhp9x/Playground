@@ -392,6 +392,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-
-
-# Vấn đề của mapping phụ âm trước rồi nguyên âm sau.
