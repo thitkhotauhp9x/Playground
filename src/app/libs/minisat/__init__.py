@@ -17,7 +17,7 @@ def group_by(items, key):
     return itertools.groupby(sorted(items, key=key), key=key)
 
 
-def int_to_binary(number: int) -> list[bool]:
+def int_to_binary(number: int, length: int) -> list[bool]:
     if number == 0:
         return [False]
 
@@ -29,17 +29,12 @@ def int_to_binary(number: int) -> list[bool]:
         remainder_list.append(bool(remainder))
         temp = temp // 2
 
+    if length >= len(remainder_list):
+        for _ in range(len(remainder_list), length):
+            remainder_list.append(False)
+    else:
+        raise ValueError(f"length must be >= {len(remainder_list)}")
+
     remainder_list.reverse()
+
     return remainder_list
-
-
-def int_to_bin(value: int, length: int) -> list[bool]:
-    bool_mapping = {
-        "0": False,
-        "1": True,
-    }
-
-    result: list[bool] = []
-    for code in f"{value:0{length}b}":
-        result.append(bool_mapping[code])
-    return result

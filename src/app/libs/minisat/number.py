@@ -4,7 +4,7 @@ from functools import singledispatch
 from sympy import And, Equivalent, Not, Or, Symbol, Xor, numbered_symbols
 from sympy.logic.boolalg import Boolean
 
-from app.libs.minisat import int_to_bin
+from app.libs.minisat import int_to_binary
 from app.libs.minisat.numbered_symbol_container import NumberedSymbolContainer
 
 NUMBER_RESULT_MAPPING: dict[bool, str] = {
@@ -81,7 +81,7 @@ def _(first: Number, second: list[bool]) -> Boolean:
 
 @equal.register
 def _(first: Number, number: int) -> Boolean:
-    return equal(first, int_to_bin(number, len(first)))
+    return equal(first, int_to_binary(number, len(first)))
 
 
 @singledispatch
