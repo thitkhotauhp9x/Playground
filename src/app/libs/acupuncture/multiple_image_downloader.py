@@ -1,6 +1,8 @@
 from pathlib import Path
+
 from bs4 import ResultSet, Tag
-from app.libs.playground.acu import ImageDownloader
+
+from app.libs.acupuncture.image_downloader import ImageDownloader
 
 
 class MultipleImageDownloader:

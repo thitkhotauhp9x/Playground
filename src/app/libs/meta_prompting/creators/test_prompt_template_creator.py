@@ -1,10 +1,10 @@
 from langchain_core.messages import BaseMessage, HumanMessage
+from rich.console import Console
 from rich.markdown import Markdown
 
-from app.libs.playground.meta_prompting.creators.prompt_template_creator import (
+from app.libs.meta_prompting.creators.prompt_template_creator import (
     PromptTemplateCreator,
 )
-from rich.console import Console
 
 
 def test_draw_a_banana() -> None:

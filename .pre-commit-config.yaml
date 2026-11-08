@@ -21,7 +21,7 @@ repos:
 
       - id: ruff-format
         name: Ruff
-        entry: poetry run ruff format
+        entry: poetry run ruff format --line-length 100
         language: python
         types_or: [ python, pyi ]
 

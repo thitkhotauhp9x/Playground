@@ -1,8 +1,9 @@
 import os
-from langchain_community.document_loaders import PyPDFLoader
-from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_community.embeddings import OllamaEmbeddings
+
 from langchain_chroma import Chroma
+from langchain_community.document_loaders import PyPDFLoader
+from langchain_community.embeddings import OllamaEmbeddings
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 # --- CẤU HÌNH ---
 PDF_PATH = "tai_lieu_cua_ban.pdf"  # Thay bằng đường dẫn file PDF của bạn
@@ -34,7 +35,6 @@ def main():
     embeddings = OllamaEmbeddings(model=MODEL_EMBEDDING)
 
     # 4. Tạo Vector Database và lưu vào bộ nhớ (In-Memory)
-    # Lưu ý: Nếu muốn lưu thành file trên ổ cứng để dùng lại, thêm tham số: persist_directory="./chroma_db"
     print("🧠 Đang tiến hành tạo vector dữ liệu và nạp vào ChromaDB...")
     vector_db = Chroma.from_documents(documents=chunks, embedding=embeddings)
     print("✅ Hệ thống đã sẵn sàng tìm kiếm!\n" + "=" * 40)

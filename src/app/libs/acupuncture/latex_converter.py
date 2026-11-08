@@ -9,8 +9,9 @@ class LatexConverter:
         self._output_parser: BaseOutputParser = output_parser
 
     def convert(self, content: str) -> str:
-        human_query = HumanMessage(f"""Chuyển đổi nội dung sau sang latex (Nhớ translate thành tiếng việt,\
- tên huyệt vị và kinh lạc cũng cần chuyển sang tiếng Việt)
+        human_query = HumanMessage(f"""\
+Chuyển đổi nội dung sau sang latex (Nhớ translate thành tiếng việt, \
+tên huyệt vị và kinh lạc cũng cần chuyển sang tiếng Việt)
 ```text
 {content}
 ```

@@ -1,9 +1,10 @@
-from langchain_core.messages import SystemMessage, HumanMessage
-from langchain_core.output_parsers import PydanticOutputParser
 from warnings import deprecated
 
-from app.libs.playground.meta_prompting.models.form import Form
-from app.libs.playground.meta_prompting.models.null_form import NullForm
+from langchain_core.messages import HumanMessage, SystemMessage
+from langchain_core.output_parsers import PydanticOutputParser
+
+from app.libs.meta_prompting.models.form import Form
+from app.libs.meta_prompting.models.null_form import NullForm
 from app.libs.playground.templates.function_output_parser import indent
 from app.libs.playground.utils.openai_runner import chat_model
 
@@ -17,7 +18,8 @@ class FormCreator:
         return self._llm.invoke(
             [
                 SystemMessage(f"""You are a form designer.
-Nhiệm vụ của bạn là xác định xem phản hồi từ OpenAI cần thu thập dữ liệu nào từ người dùng hay không.
+Nhiệm vụ của bạn là xác định xem phản hồi từ OpenAI cần thu thập dữ liệu nào từ \
+người dùng hay không.
 * Nếu cần thu thập yêu cầu từ người dùng thì thiết kế một biểu mẫu để làm việc trên.
   {indent(self._output_parser.get_format_instructions(), "  ")}
 * Nếu không cần thu thuật dữ liệu nào từ người dùng thì trả về null form với nội dung như sau

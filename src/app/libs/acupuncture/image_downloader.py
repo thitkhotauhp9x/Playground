@@ -7,7 +7,7 @@ import requests
 class ImageDownloader:
     @staticmethod
     def download(src: str, directory: Path) -> Path:
-        response = requests.get(src, stream=True)
+        response = requests.get(src, stream=True, timeout=12)
         image_name = unquote(Path(src).name)
 
         image_path = directory / image_name

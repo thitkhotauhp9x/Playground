@@ -1,6 +1,6 @@
 from rich.prompt import Prompt
 
-from app.libs.playground.meta_prompting.models.form import Form
+from app.libs.meta_prompting.models.form import Form
 
 
 class DataEntry:

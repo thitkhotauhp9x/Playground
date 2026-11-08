@@ -1,6 +1,6 @@
 import textwrap
 
-from app.libs.playground.meta_prompting.models.prompt_template import PromptTemplate
+from app.libs.meta_prompting.models.prompt_template import PromptTemplate
 
 
 class MarkdownPromptTemplateRenderer:

@@ -2,7 +2,7 @@ from typing import Annotated
 
 from pydantic import BaseModel, Field
 
-from app.libs.playground.meta_prompting.models.form_input import FormInput
+from app.libs.meta_prompting.models.form_input import FormInput
 
 
 class FormField(BaseModel):

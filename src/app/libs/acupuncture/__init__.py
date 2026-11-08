@@ -1,13 +1,12 @@
 from pathlib import Path
 
-import requests
 import bs4
-from langchain_openai import ChatOpenAI
+import requests
 from jinja2 import Environment, FileSystemLoader
+from langchain_openai import ChatOpenAI
 
-from app.libs.playground.acu.image_downloader import ImageDownloader
-from app.libs.playground.acu.latex_converter import LatexConverter
-from app.libs.playground.acu.multiple_image_downloader import MultipleImageDownloader
+from app.libs.acupuncture.latex_converter import LatexConverter
+from app.libs.acupuncture.multiple_image_downloader import MultipleImageDownloader
 from app.libs.playground.executors.pdf_latex_executor import PdfLatexExecutor
 from app.libs.playground.parsers.acupuncture_point_output_parser import (
     AcupuncturePointOutputParser,
@@ -23,7 +22,7 @@ chat_model = ChatOpenAI(model="gpt-4o-mini")
 
 
 def load_website(url: str) -> bs4.BeautifulSoup:
-    response = requests.get(url)
+    response = requests.get(url, timeout=12)
     content = bs4.BeautifulSoup(response.content, "html.parser")
     if not content:
         raise ValueError("Cannot load the website")
@@ -32,7 +31,7 @@ def load_website(url: str) -> bs4.BeautifulSoup:
 
 def build_latex(point_code: str = "GB20"):
     content = TEMPLATE.render(tex_file=f"./{point_code}.tex")
-    Path("main.tex").write_text(content)
+    Path("main.tex").write_text(content, encoding="utf-8")
     PdfLatexExecutor.execute("./main.tex", cwd=cwd)
 
 
@@ -48,11 +47,11 @@ def create_latex(point_code: str) -> None:
         images=[path.name for path in image_paths],
     )
 
-    latex_code = LatexConverter(
-        chat_model=chat_model, output_parser=output_parser
-    ).convert(str(main_container))
+    latex_code = LatexConverter(chat_model=chat_model, output_parser=output_parser).convert(
+        str(main_container)
+    )
 
-    Path(f"{point_code}.tex").write_text(latex_code)
+    Path(f"{point_code}.tex").write_text(latex_code, encoding="utf-8")
     build_latex(point_code)
 
 

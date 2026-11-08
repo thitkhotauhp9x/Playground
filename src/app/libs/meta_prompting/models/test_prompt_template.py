@@ -1,8 +1,8 @@
 from langchain_core.messages import HumanMessage
 from langchain_core.output_parsers import PydanticOutputParser
 
-from app.libs.playground.meta_prompting.checkers import check_understand
-from app.libs.playground.meta_prompting.models.prompt_template import PromptTemplate
+from app.libs.meta_prompting.checkers import check_understand
+from app.libs.meta_prompting.models.prompt_template import PromptTemplate
 from app.libs.playground.utils.openai_runner import llm
 
 

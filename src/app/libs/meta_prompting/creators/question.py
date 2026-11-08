@@ -2,7 +2,7 @@ import sys
 import textwrap
 from typing import Annotated
 
-from langchain_core.messages import HumanMessage, SystemMessage, BaseMessage
+from langchain_core.messages import AnyMessage, BaseMessage, HumanMessage, SystemMessage
 from langchain_core.output_parsers import PydanticOutputParser, StrOutputParser
 from pydantic import BaseModel, Field
 from rich.console import Console
@@ -51,12 +51,12 @@ Nhiệm vụ của bạn là giúp tôi thiết kế một "Prompt Template" ho�
 Bây giờ, hãy thực hiện bước sau theo quy trình:
 
 Bước 1: Đặt câu hỏi
-* Nếu thông tin tôi cung cấp chưa đủ rõ ràng hoặc thiếu các yếu tố cốt lõi (như định dạng đầu ra, bối cảnh),
-  hãy đặt cho tôi tối đa 3 câu hỏi để tôi làm rõ.
+* Nếu thông tin tôi cung cấp chưa đủ rõ ràng hoặc thiếu các yếu tố cốt lõi \
+(như định dạng đầu ra, bối cảnh), hãy đặt cho tôi tối đa 3 câu hỏi để tôi làm rõ.
   {textwrap.indent(output_parser.get_format_instructions(), "  ", lambda line: True).strip()}
 * Nếu đã đủ thông tin, hãy thông báo, "{QuestionList(questions=[]).model_dump_json(indent=2)}"
 """
-    messages = [HumanMessage(content)]
+    messages: list[AnyMessage] = [HumanMessage(content)]
     response = None
     for _ in range(10):
         try:
@@ -75,12 +75,13 @@ Bước 1: Đặt câu hỏi
     return response
 
 
-def step_2(messages: list[BaseMessage]):
+def step_2(messages: list[AnyMessage]):
     inner_messages = [
         *messages,
         HumanMessage("""Bước 2: Đề xuất định dạng kết quả (Expected Output)
-* Dựa trên công việc của tôi, hãy gợi ý 2-3 định dạng kết quả đầu ra chuyên nghiệp nhất (Ví dụ: Dạng bảng, \
-dạng danh sách bullet-point, dạng bài viết có cấu trúc cụ thể...) để tôi có thể lựa chọn.
+* Dựa trên công việc của tôi, hãy gợi ý 2-3 định dạng kết quả đầu ra chuyên nghiệp \
+nhất (Ví dụ: Dạng bảng, dạng danh sách bullet-point, dạng bài viết có cấu trúc cụ \
+thể...) để tôi có thể lựa chọn.
 """),
     ]
     response = chat_model.invoke(inner_messages)
@@ -94,35 +95,6 @@ def question(
     default: str = "Thông tin đã đủ, tiến hành tạo template.",
 ):
     output_parser = PydanticOutputParser(pydantic_object=QuestionList)
-    #
-    #     system_content = """Bạn là một Kỹ sư Prompt xuất sắc (Expert Prompt Engineer). \
-    # Nhiệm vụ của bạn là giúp tôi thiết kế một "Prompt Template" hoàn hảo nhất cho công việc được người dùng nhập vào.
-    #
-    # Bây giờ, hãy thực hiện bước sau theo quy trình:
-    # """
-    #     step_1 = f"""Bước 1: Đặt câu hỏi
-    # * Nếu thông tin tôi cung cấp chưa đủ rõ ràng hoặc thiếu các yếu tố cốt lõi (như định dạng đầu ra, bối cảnh), hãy đặt cho tôi tối đa 3 câu hỏi để tôi làm rõ.
-    #   {textwrap.indent(output_parser.get_format_instructions(), "  ", lambda line: True).strip()}
-    # * Nếu đã đủ thông tin, hãy thông báo, "{default}"
-    # """
-    #
-    #     first_step = system_content + step_1
-    #     _messages = [
-    #         SystemMessage(first_step),
-    #         HumanMessage(f"""This is the work:
-    # > {work_description}
-    # """)
-    #     ]
-    #     r1 = None
-    #     for _ in range(10):
-    #         try:
-    #             r1 = chat_model.invoke(_messages)
-    #             _messages.append(r1)
-    #             _messages.append(query(StrOutputParser().invoke(r1)))
-    #         except Exception as e:
-    #             print(e)
-    #             return r1
-    #     return r1
 
     inner_messages = [
         SystemMessage(
@@ -130,26 +102,29 @@ def question(
 Nhiệm vụ của bạn là giúp tôi thiết kế một "Prompt Template" hoàn hảo nhất cho công việc dưới đây.
 
 1. Công việc tôi muốn làm: [Điền tên công việc, ví dụ: Viết bài review sản phẩm công nghệ]
-2. Đối tượng mục tiêu đọc kết quả này: [Điền đối tượng, ví dụ: Người dùng phổ thông, học sinh, đối tác]
+2. Đối tượng mục tiêu đọc kết quả này: [Điền đối tượng, ví dụ: Người dùng phổ thông, \
+học sinh, đối tác]
 3. Yêu cầu đặc biệt (nếu có): [Điền yêu cầu, ví dụ: Giọng văn hài hước, ngắn gọn dưới 500 từ]
 
 Bây giờ, hãy thực hiện các bước sau theo quy trình:
 
 Bước 1: Đặt câu hỏi
-* Nếu thông tin tôi cung cấp ở trên chưa đủ rõ ràng hoặc thiếu các yếu tố cốt\
- lõi (như định dạng đầu ra, bối cảnh), hãy đặt cho tôi tối đa 3 câu hỏi để tôi làm rõ.\
- Chú ý không hỏi lại những câu tôi đã trả lời.
+* Nếu thông tin tôi cung cấp ở trên chưa đủ rõ ràng hoặc thiếu các yếu tố cốt \
+lõi (như định dạng đầu ra, bối cảnh), hãy đặt cho tôi tối đa 3 câu hỏi để tôi làm rõ. \
+Chú ý không hỏi lại những câu tôi đã trả lời.
  {textwrap.indent(output_parser.get_format_instructions(), "  ", lambda line: True).strip()}
 * Nếu đã đủ thông tin, hãy thông báo, "{default}"
 
 Bước 2: Đề xuất định dạng kết quả (Expected Output)
-* Dựa trên công việc của tôi, hãy gợi ý 2-3 định dạng kết quả đầu ra chuyên nghiệp nhất (Ví dụ: Dạng bảng, \
-dạng danh sách bullet-point, dạng bài viết có cấu trúc cụ thể...) để tôi có thể lựa chọn.
+* Dựa trên công việc của tôi, hãy gợi ý 2-3 định dạng kết quả đầu ra chuyên nghiệp nhất \
+(Ví dụ: Dạng bảng, dạng danh sách bullet-point, dạng bài viết có cấu trúc cụ thể...) \
+để tôi có thể lựa chọn.
 
 Bước 3: Tạo Prompt Template hoàn chỉnh
-* Hãy thiết kế một Prompt Template tối ưu nhất, viết theo cấu trúc chuẩn dành cho AI (bao gồm: Vai trò, Bối cảnh, \
-Nhiệm vụ cụ thể, Các ràng buộc/Quy tắc, và Khung thông tin đầu vào). Sử dụng các ký hiệu `[...]` cho những phần \
-thông tin mà tôi cần tự điền vào sau này.
+* Hãy thiết kế một Prompt Template tối ưu nhất, viết theo cấu trúc chuẩn dành cho AI \
+(bao gồm: Vai trò, Bối cảnh, \
+Nhiệm vụ cụ thể, Các ràng buộc/Quy tắc, và Khung thông tin đầu vào). Sử dụng các ký \
+hiệu `[...]` cho những phần thông tin mà tôi cần tự điền vào sau này.\
 """
         ),
         *messages,

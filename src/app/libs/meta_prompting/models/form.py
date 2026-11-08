@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 
-from app.libs.playground.meta_prompting.models.form_field import FormField
+from app.libs.meta_prompting.models.form_field import FormField
 
 
 class Form(BaseModel):

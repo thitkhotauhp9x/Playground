@@ -29,8 +29,4 @@ def test_convert_mermaid_to_svg(code):
             response = convert_mermaid_to_svg(code, svg_file.as_posix())
             print(response)
         except CalledProcessError as e:
-            import pdb
-
-            pdb.set_trace()
             print(e.stderr)
-            pass

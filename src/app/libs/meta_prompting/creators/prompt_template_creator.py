@@ -1,15 +1,14 @@
 from functools import cached_property
-
-from langchain_core.messages import BaseMessage, SystemMessage
 from warnings import deprecated
 
+from langchain_core.messages import BaseMessage, SystemMessage
 from langchain_core.output_parsers import PydanticOutputParser
 
-from app.libs.playground.meta_prompting.renders.markdown_prompt_template_renderer import (
+from app.libs.meta_prompting.models.prompt_template import PromptTemplate
+from app.libs.meta_prompting.renders.markdown_prompt_template_renderer import (
     MarkdownPromptTemplateRenderer,
 )
 from app.libs.playground.utils.openai_runner import chat_model
-from app.libs.playground.meta_prompting.models.prompt_template import PromptTemplate
 
 
 class PromptTemplateCreator:
