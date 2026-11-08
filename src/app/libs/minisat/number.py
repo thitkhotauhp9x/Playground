@@ -30,7 +30,7 @@ class Number(UserList[Symbol]):
         return int(code, 2)
 
 
-def add(first: list[Symbol], second: list[Symbol | bool], result: list[Symbol]):
+def add(first: Number, second: Number, result: Number) -> Boolean:
     if len(first) != len(second) != len(result):
         raise ValueError("Arrays must have the same length")
 
@@ -66,7 +66,7 @@ def int_to_bin(value: int, length: int) -> list[bool]:
 
 
 @singledispatch
-def equal(first, second) -> Boolean:
+def equal(_first, _second) -> Boolean:
     raise NotImplementedError("Not implemented")
 
 
@@ -95,7 +95,7 @@ def _(first: Number, number: int) -> Boolean:
 
 
 @singledispatch
-def less_than(first, second) -> Boolean:
+def less_than(_first, _second) -> Boolean:
     raise NotImplementedError("Not implemented")
 
 
