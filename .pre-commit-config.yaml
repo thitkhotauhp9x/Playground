@@ -37,7 +37,10 @@ repos:
         entry: poetry run pylint
         language: python
         types_or: [ python, pyi ]
-        args: ["--disable", "missing-module-docstring,missing-class-docstring,missing-function-docstring"]
+        args: [
+          "--disable", "missing-module-docstring,missing-class-docstring,missing-function-docstring",
+          "--extension-pkg-allow-list", "dependency_injector.containers"
+        ]
 
       - id: pyright
         name: Pyright

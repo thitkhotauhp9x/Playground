@@ -1,47 +1,22 @@
 from collections import UserList
-from typing import Any
+from functools import singledispatch
 
-from sympy import Equivalent, Symbol, And, Not, Or, numbered_symbols, Xor
+from sympy import And, Equivalent, Not, Or, Symbol, Xor, numbered_symbols
+from sympy.logic.boolalg import Boolean
+
+from app.libs.minisat.numbered_symbol_container import NumberedSymbolContainer
 
 
 class Number(UserList[Symbol]):
-    def eq(self, other: Any) -> Any:
-        if isinstance(other, Number):
-            clauses = []
-            for i, j in zip(self.data, other.data, strict=True):
-                clauses.append(Equivalent(i, j))
-            return And(*clauses)
-        elif isinstance(other, int):
-            clauses = []
-            for element, binary in zip(
-                self.data, self.int_to_bin(other, len(self.data))
-            ):
-                if binary:
-                    clauses.append(element)
-                else:
-                    clauses.append(Not(element))
-            return And(*clauses)
-        else:
-            raise ValueError("Does not supported")
+    @classmethod
+    def create(cls, prefix: str, buffer_size: int) -> "Number":
+        ns = numbered_symbols(prefix)
+        vs = []
+        for _ in range(0, buffer_size, 1):
+            vs.append(next(ns))
+        return cls(*vs)
 
-    @property
-    def name(self) -> str:
-        code = [i.name for i in self.data]
-        return f"Number({code})"
-
-    @staticmethod
-    def int_to_bin(value: int, length: int) -> list[bool]:
-        bool_mapping = {
-            "0": False,
-            "1": True,
-        }
-
-        result: list[bool] = []
-        for code in f"{value:0{length}b}":
-            result.append(bool_mapping[code])
-        return result
-
-    def read_solution(self, solution) -> int:
+    def get_value(self, solution) -> int:
         result_mapping: dict[bool, str] = {
             True: "1",
             False: "0",
@@ -54,62 +29,80 @@ class Number(UserList[Symbol]):
 
         return int(code, 2)
 
-    def lt(self, n: int):
-        expr = []
 
-        for number in range(n, 2 ** len(self.data), 1):
-            expr.append(Not(self.eq(number)))
+def add(first: list[Symbol], second: list[Symbol | bool], result: list[Symbol]):
+    if len(first) != len(second) != len(result):
+        raise ValueError("Arrays must have the same length")
 
-        return Or(*expr)
+    container = NumberedSymbolContainer()
+    memory = [next(container.numbered_symbol_singleton()) for _ in range(len(first))]
 
-    @staticmethod
-    def r_add(
-        a: list[Symbol], b: list[Symbol | bool], c: list[Symbol], s: list[Symbol]
-    ):
-        expr = Equivalent(s[0], Or(a[0], b[0]))
+    ra = first[::-1]
+    rb = second[::-1]
+    rc = memory[::-1]
+    rs = result[::-1]
 
-        expr = And(expr, Equivalent(c[0], a[0] & b[0]))
+    expr = Equivalent(rs[0], Or(ra[0], rb[0]))
 
-        for i, (a_i, b_i, s_i) in enumerate(zip(a[1:], b[1:], s[1:])):
-            expr = And(expr, Equivalent(s[i], Xor(a_i, b_i, c[i - 1])))
-            expr = And(
-                expr, Equivalent(c[i], Or(And(a_i, b_i), And(c[i - 1], Or(a_i, b_i))))
-            )
+    expr = And(expr, Equivalent(rc[0], ra[0] & rb[0]))
 
-        return expr
+    for i, (ra_i, rb_i, _) in enumerate(zip(ra[1:], rb[1:], rs[1:])):
+        expr = And(expr, Equivalent(rs[i], Xor(ra_i, rb_i, rc[i - 1])))
+        expr = And(expr, Equivalent(rc[i], Or(And(ra_i, rb_i), And(rc[i - 1], Or(ra_i, rb_i)))))
 
-    @staticmethod
-    def add(a: list[Symbol], b: list[Symbol | bool], c: list[Symbol], s: list[Symbol]):
-        return Number.r_add(a[::-1], b[::-1], c[::-1], s[::-1])
+    return expr
 
-    @staticmethod
-    def st_name(a: list[Symbol]) -> str:
-        return "_".join([i.name for i in a])
 
-    @staticmethod
-    def add_number(a: list[Symbol], b: int, s: list[Symbol]):
-        assert len(a) == len(s)
+def int_to_bin(value: int, length: int) -> list[bool]:
+    bool_mapping = {
+        "0": False,
+        "1": True,
+    }
 
-        sized = len(a)
+    result: list[bool] = []
+    for code in f"{value:0{length}b}":
+        result.append(bool_mapping[code])
+    return result
 
-        auto_gen_symbols = numbered_symbols(
-            f"C({Number.st_name(a)}+{b}={Number.st_name(s)})"
-        )
 
-        return Number.add(
-            a,
-            Number.int_to_bin(b, sized),
-            [next(auto_gen_symbols) for _ in range(sized)],
-            s,
-        )
+@singledispatch
+def equal(first, second) -> Boolean:
+    raise NotImplementedError("Not implemented")
 
-    def ad(self, b: int, s: "Number"):
-        return Number.add_number(self.data, b, s.data)
 
-    @classmethod
-    def create(cls, prefix: str, buffer_size: int) -> "Number":
-        ns = numbered_symbols(prefix)
-        vs = []
-        for i in range(0, buffer_size, 1):
-            vs.append(next(ns))
-        return cls(*vs)
+@equal.register
+def _(first: Number, second: Number) -> Boolean:
+    clauses = []
+    for i, j in zip(first.data, second.data, strict=True):
+        clauses.append(Equivalent(i, j))
+    return And(*clauses)
+
+
+@equal.register
+def _(first: Number, second: list[bool]) -> Boolean:
+    clauses = []
+    for element, binary in zip(first.data, second):
+        if binary:
+            clauses.append(element)
+        else:
+            clauses.append(Not(element))
+    return And(*clauses)
+
+
+@equal.register
+def _(first: Number, number: int) -> Boolean:
+    return equal(first, int_to_bin(number, len(first)))
+
+
+@singledispatch
+def less_than(first, second) -> Boolean:
+    raise NotImplementedError("Not implemented")
+
+
+@less_than.register
+def _(first: Number, second: int) -> Boolean:
+    expr = []
+
+    for _ in range(second, 2 ** len(first.data), 1):
+        expr.append(Not(equal(first, second)))
+    return Or(*expr)
