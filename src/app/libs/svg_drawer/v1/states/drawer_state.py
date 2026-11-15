@@ -44,11 +44,8 @@ SVG hiện tại:
         ),
     )
     state.history.append(HumanMessage(content=state.design[-1]))
-
     response = agent_executor.invoke({"messages": state.history})
-    import pdb
 
-    pdb.set_trace()
     state.history += response["messages"]
     state.svg.display()
     return state

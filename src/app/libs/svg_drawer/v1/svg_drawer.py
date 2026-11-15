@@ -2,6 +2,7 @@ from app.libs.svg_drawer.v1.models.shapes.circle import Circle
 from app.libs.svg_drawer.v1.models.shapes.ellipse import Ellipse
 from app.libs.svg_drawer.v1.models.shapes.line import Line
 from app.libs.svg_drawer.v1.models.shapes.path import PathShape
+from app.libs.svg_drawer.v1.models.shapes.path_data.path_data import PathData
 from app.libs.svg_drawer.v1.models.shapes.rect import Rect
 from app.libs.svg_drawer.v1.models.shapes.shape import Shape
 from app.libs.svg_drawer.v1.models.svg import Svg
@@ -84,7 +85,7 @@ class SvgDrawer:
     def draw_path(
         self,
         path_id: str,
-        d: str,
+        d: list[PathData],
         fill: str = "none",
         stroke: str = "#3D342F",
         stroke_width: float = 2.5,
@@ -94,16 +95,375 @@ class SvgDrawer:
 
         Args:
             path_id:
-            d: SVG path data using M, L, H, V, C, S, Q, T, A, and Z commands
-               Follow these geometric construction rules:
-               - Use A commands for circular arcs and ellipses.
-               - For a complete circle using A commands, use at least two
-                 semicircular arcs instead of a single arc.
-               - Never use an A command whose start and end points are identical.
-               - Ensure connected segments meet exactly at their endpoints.
-               - Preserve specified radii, dimensions, and geometric proportions.
-               - Close enclosed shapes using Z when appropriate.
-               Use C or Q for smooth Bézier curves when appropriate.
+            d:{
+                "$defs": {
+                    "Arc": {
+                        "properties": {
+                            "command": {
+                                "description": "L\u1ec7nh A ho\u1eb7c a",
+                                "enum": [
+                                    "A",
+                                    "a"
+                                ],
+                                "title": "Command",
+                                "type": "string"
+                            },
+                            "rx": {
+                                "title": "Rx",
+                                "type": "number"
+                            },
+                            "ry": {
+                                "title": "Ry",
+                                "type": "number"
+                            },
+                            "x-axis-rotation": {
+                                "title": "X-Axis-Rotation",
+                                "type": "number"
+                            },
+                            "large-arc-flag": {
+                                "maximum": 1,
+                                "minimum": 0,
+                                "title": "Large-Arc-Flag",
+                                "type": "integer"
+                            },
+                            "sweep-flag": {
+                                "maximum": 1,
+                                "minimum": 0,
+                                "title": "Sweep-Flag",
+                                "type": "integer"
+                            },
+                            "x": {
+                                "title": "X",
+                                "type": "number"
+                            },
+                            "y": {
+                                "title": "Y",
+                                "type": "number"
+                            }
+                        },
+                        "required": [
+                            "command",
+                            "rx",
+                            "ry",
+                            "x-axis-rotation",
+                            "large-arc-flag",
+                            "sweep-flag",
+                            "x",
+                            "y"
+                        ],
+                        "title": "Arc",
+                        "type": "object"
+                    },
+                    "ClosePath": {
+                        "properties": {
+                            "command": {
+                                "description": "L\u1ec7nh Z ho\u1eb7c z",
+                                "enum": [
+                                    "Z",
+                                    "z"
+                                ],
+                                "title": "Command",
+                                "type": "string"
+                            }
+                        },
+                        "required": [
+                            "command"
+                        ],
+                        "title": "ClosePath",
+                        "type": "object"
+                    },
+                    "CubicBezier": {
+                        "properties": {
+                            "command": {
+                                "description": "L\u1ec7nh C ho\u1eb7c c",
+                                "enum": [
+                                    "C",
+                                    "c"
+                                ],
+                                "title": "Command",
+                                "type": "string"
+                            },
+                            "x1": {
+                                "title": "X1",
+                                "type": "number"
+                            },
+                            "y1": {
+                                "title": "Y1",
+                                "type": "number"
+                            },
+                            "x2": {
+                                "title": "X2",
+                                "type": "number"
+                            },
+                            "y2": {
+                                "title": "Y2",
+                                "type": "number"
+                            },
+                            "x": {
+                                "title": "X",
+                                "type": "number"
+                            },
+                            "y": {
+                                "title": "Y",
+                                "type": "number"
+                            }
+                        },
+                        "required": [
+                            "command",
+                            "x1",
+                            "y1",
+                            "x2",
+                            "y2",
+                            "x",
+                            "y"
+                        ],
+                        "title": "CubicBezier",
+                        "type": "object"
+                    },
+                    "HorizontalLine": {
+                        "properties": {
+                            "command": {
+                                "description": "L\u1ec7nh H ho\u1eb7c h",
+                                "enum": [
+                                    "H",
+                                    "h"
+                                ],
+                                "title": "Command",
+                                "type": "string"
+                            },
+                            "x": {
+                                "title": "X",
+                                "type": "number"
+                            }
+                        },
+                        "required": [
+                            "command",
+                            "x"
+                        ],
+                        "title": "HorizontalLine",
+                        "type": "object"
+                    },
+                    "LineTo": {
+                        "properties": {
+                            "command": {
+                                "description": "L\u1ec7nh L ho\u1eb7c l",
+                                "enum": [
+                                    "L",
+                                    "l"
+                                ],
+                                "title": "Command",
+                                "type": "string"
+                            },
+                            "x": {
+                                "title": "X",
+                                "type": "number"
+                            },
+                            "y": {
+                                "title": "Y",
+                                "type": "number"
+                            }
+                        },
+                        "required": [
+                            "command",
+                            "x",
+                            "y"
+                        ],
+                        "title": "LineTo",
+                        "type": "object"
+                    },
+                    "MoveTo": {
+                        "properties": {
+                            "command": {
+                                "description": "L\u1ec7nh M ho\u1eb7c m",
+                                "enum": [
+                                    "M",
+                                    "m"
+                                ],
+                                "title": "Command",
+                                "type": "string"
+                            },
+                            "x": {
+                                "title": "X",
+                                "type": "number"
+                            },
+                            "y": {
+                                "title": "Y",
+                                "type": "number"
+                            }
+                        },
+                        "required": [
+                            "command",
+                            "x",
+                            "y"
+                        ],
+                        "title": "MoveTo",
+                        "type": "object"
+                    },
+                    "QuadraticBezier": {
+                        "properties": {
+                            "command": {
+                                "description": "L\u1ec7nh Q ho\u1eb7c q",
+                                "enum": [
+                                    "Q",
+                                    "q"
+                                ],
+                                "title": "Command",
+                                "type": "string"
+                            },
+                            "x1": {
+                                "title": "X1",
+                                "type": "number"
+                            },
+                            "y1": {
+                                "title": "Y1",
+                                "type": "number"
+                            },
+                            "x": {
+                                "title": "X",
+                                "type": "number"
+                            },
+                            "y": {
+                                "title": "Y",
+                                "type": "number"
+                            }
+                        },
+                        "required": [
+                            "command",
+                            "x1",
+                            "y1",
+                            "x",
+                            "y"
+                        ],
+                        "title": "QuadraticBezier",
+                        "type": "object"
+                    },
+                    "SmoothCubicBezier": {
+                        "properties": {
+                            "command": {
+                                "description": "L\u1ec7nh S ho\u1eb7c s",
+                                "enum": [
+                                    "S",
+                                    "s"
+                                ],
+                                "title": "Command",
+                                "type": "string"
+                            },
+                            "x2": {
+                                "title": "X2",
+                                "type": "number"
+                            },
+                            "y2": {
+                                "title": "Y2",
+                                "type": "number"
+                            },
+                            "x": {
+                                "title": "X",
+                                "type": "number"
+                            },
+                            "y": {
+                                "title": "Y",
+                                "type": "number"
+                            }
+                        },
+                        "required": [
+                            "command",
+                            "x2",
+                            "y2",
+                            "x",
+                            "y"
+                        ],
+                        "title": "SmoothCubicBezier",
+                        "type": "object"
+                    },
+                    "SmoothQuadraticBezier": {
+                        "properties": {
+                            "command": {
+                                "description": "L\u1ec7nh T ho\u1eb7c t",
+                                "enum": [
+                                    "T",
+                                    "t"
+                                ],
+                                "title": "Command",
+                                "type": "string"
+                            },
+                            "x": {
+                                "title": "X",
+                                "type": "number"
+                            },
+                            "y": {
+                                "title": "Y",
+                                "type": "number"
+                            }
+                        },
+                        "required": [
+                            "command",
+                            "x",
+                            "y"
+                        ],
+                        "title": "SmoothQuadraticBezier",
+                        "type": "object"
+                    },
+                    "VerticalLine": {
+                        "properties": {
+                            "command": {
+                                "description": "L\u1ec7nh V ho\u1eb7c v",
+                                "enum": [
+                                    "v",
+                                    "V"
+                                ],
+                                "title": "Command",
+                                "type": "string"
+                            },
+                            "y": {
+                                "title": "Y",
+                                "type": "number"
+                            }
+                        },
+                        "required": [
+                            "command",
+                            "y"
+                        ],
+                        "title": "VerticalLine",
+                        "type": "object"
+                    }
+                },
+                "items": {
+                    "anyOf": [
+                        {
+                            "$ref": "#/$defs/MoveTo"
+                        },
+                        {
+                            "$ref": "#/$defs/LineTo"
+                        },
+                        {
+                            "$ref": "#/$defs/HorizontalLine"
+                        },
+                        {
+                            "$ref": "#/$defs/VerticalLine"
+                        },
+                        {
+                            "$ref": "#/$defs/CubicBezier"
+                        },
+                        {
+                            "$ref": "#/$defs/SmoothCubicBezier"
+                        },
+                        {
+                            "$ref": "#/$defs/QuadraticBezier"
+                        },
+                        {
+                            "$ref": "#/$defs/SmoothQuadraticBezier"
+                        },
+                        {
+                            "$ref": "#/$defs/Arc"
+                        },
+                        {
+                            "$ref": "#/$defs/ClosePath"
+                        }
+                    ]
+                },
+                "title": "DataPathList",
+                "type": "array"
+            }
             fill:
             stroke:
             stroke_width:
@@ -111,6 +471,9 @@ class SvgDrawer:
         Returns:
 
         """
+        import pdb
+
+        pdb.set_trace()
         self._svg.shapes.append(
             PathShape(
                 shape_id=path_id,

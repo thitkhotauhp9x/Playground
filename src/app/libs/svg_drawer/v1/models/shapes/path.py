@@ -1,9 +1,9 @@
-import re
-from typing import Literal
+from typing import Annotated, Literal
 from xml.etree.ElementTree import Element
 
-from pydantic import Field, field_validator
+from pydantic import Field
 
+from app.libs.svg_drawer.v1.models.shapes.path_data.path_data import PathData
 from app.libs.svg_drawer.v1.models.shapes.shape import Shape
 
 
@@ -11,41 +11,19 @@ class PathShape(Shape):
     """An SVG path supporting standard move, line, curve, arc, and close commands."""
 
     shape_type: Literal["path"] = "path"
-    d: str = Field(
-        description=(
-            "SVG path data using standard M, L, H, V, C, S, Q, T, A, and Z commands. "
-            "Follow these geometric construction rules:\n"
-            "- Use A commands for circular arcs and ellipses.\n"
-            "- For a complete circle using A commands, use at least two "
-            "semicircular arcs instead of a single arc.\n"
-            "- Never use an A command whose start and end points are identical.\n"
-            "- Ensure connected segments meet exactly at their endpoints.\n"
-            "- Preserve specified radii, dimensions, and geometric proportions.\n"
-            "- Close enclosed shapes using Z when appropriate.\n"
-            "Use C or Q for smooth Bézier curves when appropriate."
-        ),
-        min_length=1,
-        max_length=4000,
+    d: list[Annotated[PathData, Field(discriminator="command")]] = Field(
+        default_factory=list, description="SVG path data"
     )
     fill: str = Field(default="none", description="Fill color or none")
     stroke: str = Field(default="#3D342F", description="Stroke color")
     stroke_width: float = Field(default=2.5, gt=0, le=20, description="Stroke width")
 
-    @field_validator("d")
-    @classmethod
-    def validate_path_commands(cls, value: str) -> str:
-        if not re.fullmatch(r"[MmLlHhVvCcSsQqTtAaZz0-9eE.,+\-\s]+", value):
-            raise ValueError("Path data contains unsupported SVG commands or characters")
-        if not re.search(r"[Mm]", value):
-            raise ValueError("SVG path data must begin with a move command")
-        return value.strip()
-
     def to_svg(self) -> Element:
         return Element(
-            "path",
+            "path_data",
             attrib={
                 "id": self.shape_id,
-                "d": self.d,
+                "d": " ".join([i.to_svg_string() for i in self.d]),
                 "fill": self.fill,
                 "stroke": self.stroke,
                 "stroke-width": str(self.stroke_width),
