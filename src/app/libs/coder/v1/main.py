@@ -2,9 +2,9 @@ import dspy
 from rich.console import Console
 from rich.markdown import Markdown
 
-from app.libs.playground.utils.coder.v1.coder import Coder
-from app.libs.playground.utils.coder.v1.markdown_converters import MarkdownConverter
-from app.libs.playground.utils.coder.v1.tester import Tester
+from app.libs.coder.v1.coder import Coder
+from app.libs.coder.v1.markdown_converters import MarkdownConverter
+from app.libs.coder.v1.tester import Tester
 
 dspy.configure(lm=dspy.LM("openai/gpt-5-mini"))
 
