@@ -20,12 +20,10 @@ def run_collaboration(task: str, rounds: int = 2):
 
     tester_result = ""
     coder_result = coder(task=task, tester_feedback=tester_result)
-    import pdb
 
-    pdb.set_trace()
     console.print(Markdown(converter.coder_result_to_markdown(coder_result)))
 
-    for i in range(rounds):
+    for _ in range(rounds):
         tester_result = tester(task=task, code_output=coder_result.code)
         console.print(Markdown(converter.tester_result_to_markdown(tester_result)))
 
@@ -39,7 +37,7 @@ def run_collaboration(task: str, rounds: int = 2):
     return {"final_result": coder_result, "tester_review": tester_result}
 
 
-if __name__ == "__main__":
+def main():
     task = (
         "Viết hàm Python kiểm tra chuỗi palindrome,"
         " bỏ qua khoảng trắng và không phân biệt hoa thường."
@@ -52,3 +50,7 @@ if __name__ == "__main__":
 
     console.print("\n=== TESTER REVIEW ===")
     console.print(Markdown(converter.tester_result_to_markdown(result["tester_review"])))
+
+
+if __name__ == "__main__":
+    main()
