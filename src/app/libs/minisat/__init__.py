@@ -1,5 +1,6 @@
 import itertools
 
+import numpy as np
 from sympy import And, Not, Or
 
 
@@ -38,3 +39,9 @@ def int_to_binary(number: int, length: int) -> list[bool]:
     remainder_list.reverse()
 
     return remainder_list
+
+
+def int_to_binary_8bit(number: int) -> list[bool]:
+    arr = np.array([number], dtype=np.uint8)
+    bits = np.unpackbits(arr)
+    return bits.astype(bool).tolist()
